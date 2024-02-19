@@ -61,7 +61,7 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	     (string-match "[0-9]" (denote-fz-get-last-char str))))
 
 ;; NOTE: full-section is the list of notes including the selected note
-;; and all descendants.
+;; and all its descendants.
 (defun denote-fz-create-regex-string (id variation)
   "Create a regex for searching children,parent, section, full-section.
 Used by `denote-fz-execute-find-command' to find related notes."
@@ -209,6 +209,11 @@ Return string."
   (let* ((file (or file (buffer-file-name)))
 	 (signature (denote-fz-retrieve-filename-signature file)))
     (denote-fz-string-variation signature variation)))
+
+(defun denote-fz-first-note()
+  "Create the first folgezettel note, with 1 as the signature."
+  (interactive)
+  (denote-fz-create-note "1"))
 
 (defun denote-fz-insert-child-here()
   "Uses the current buffer's signature as starting point"
