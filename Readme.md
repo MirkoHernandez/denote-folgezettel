@@ -14,7 +14,7 @@ Download `denote-fz.el`, then use M-x `package-install-file`. M-x
 installation.
 
 Denote 2.0.0 or above is required. 
-For now `sed` and `awk` are also required for sorting dired buffers.
+For now *sed* and *awk* are also required for sorting dired buffers.
 
 # Usage
 
@@ -102,18 +102,20 @@ the sequence if it can't find the next sibling.
 ## Dired integration
 
 `denote-fz-dired-mode`
+
 Opens a dired buffer with the notes sorted by the folgezettel
 id.
 
 `denote-fz-dired-section`
+
 Opens a dired buffer with the notes corresponding with all the
 descendants of the dired file at point.
 
 `denote-fz-dired-section-up`
+
 Opens a dired buffer with the notes corresponding with all the
 descendants of the parent of the dired file at point.
 
 `denote-fz-dired-main-notes`
+
 Opens a dired buffer with all the top level notes.
-
-
