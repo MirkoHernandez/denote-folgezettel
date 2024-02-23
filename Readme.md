@@ -63,6 +63,19 @@ as the target.
 Same as denote-fz-insert-sibling but uses the current buffer's signature
 as the target.
 
+## Dynamic blocks
+
+`denote-fz-insert-section-dblock` 
+
+Insert dblock with a regexp corresponding with the section of the
+current buffer's id.
+
+`denote-fz-insert-full-section-dblock` 
+
+Insert dblock with a regexp corresponding with the full-section of the
+current buffer's id.
+
+
 ## Navigation
 
 `denote-fz-find-file`
