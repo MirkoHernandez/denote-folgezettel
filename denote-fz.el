@@ -366,6 +366,49 @@ includes only signature title and keywords. FILE is a denote path or string."
       ;; For programatic use, just return the filename. 
       filename)))
 
+;;;; org dynamic blocks
+(defun denote-fz-parent-directory (file)
+  "Return parent directory of FILE."
+  (file-name-nondirectory
+	 (directory-file-name 
+	  (file-name-directory
+	   file))))
+
+(defun denote-fz-insert-dblock (regexp)
+ "Create a db block using REGEXP. Sorted by signature" 
+    (org-create-dblock (list :name "denote-links"
+                             :regexp regexp
+                             :sort-by-component 'signature
+                             :reverse-sort nil
+                             :id-only nil))
+    (org-update-dblock))
+
+(defun denote-fz-insert-section-dblock ()
+ "Insert dblock with a regexp  corresponding with the section of the
+current buffer id. " 
+  (interactive)
+  (let* ((file (buffer-file-name))
+	 (parent-dir (denote-fz-parent-directory file))
+	 (signature (denote-fz-retrieve-filename-signature file))
+	 (section (if signature
+			   (denote-fz-create-regex-string signature 'section)
+			 "[0-9]+--"))
+	 (regexp (concat parent-dir ".*==" section)))
+    (denote-fz-insert-dblock regexp)))
+
+(defun denote-fz-insert-full-section-dblock ()
+ "Insert dblock with a regexp  corresponding with the full section of the
+current buffer id. " 
+  (interactive)
+  (let* ((file (buffer-file-name))
+	 (parent-dir (denote-fz-parent-directory file))
+	 (signature (denote-fz-retrieve-filename-signature file))
+	 (full-section (if signature
+			   (denote-fz-create-regex-string signature 'full-section)
+			 "[0-9]+--"))
+	 (regexp (concat parent-dir ".*==" full-section)))
+    (denote-fz-insert-dblock regexp)))
+
 ;;;; denote-fz-mode 
 (defvar denote-fz-mode-string
 " denote-fz")
@@ -388,8 +431,7 @@ includes only signature title and keywords. FILE is a denote path or string."
       (progn
 	(setq-local denote-rename-buffer-format "%s %t")
 	(denote-rename-buffer-mode t)
-	(denote-rename-buffer-rename-function-or-fallback)
-	)
+	(denote-rename-buffer-rename-function-or-fallback))
     (setq-local denote-rename-buffer-format "%t")))
 
 (defvar denote-fz-dired-mode-map
@@ -415,4 +457,3 @@ narrowing functions."
 
 (provide 'denote-fz)
 ;;; denote-fz.el ends here
-
