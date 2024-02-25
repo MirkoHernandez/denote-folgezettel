@@ -157,16 +157,8 @@ Return string."
      (denote-fz-execute-find-command (concat id "--")))))
 
 ;;;; Denote defuns
-(defun denote-fz-retrieve-filename-signature (file)
-  "NOTE:  Modified   version  of  denote-retrieve-filename-signature
-without the error message."
-  (when (denote-file-has-signature-p file)
-    (progn
-      (string-match denote-signature-regexp file)
-      (match-string 1 file))))
-
 (defun denote-fz-retrieve-ids (files)
-  (mapcar #'denote-fz-retrieve-filename-signature files))
+  (mapcar #'denote-retrieve-filename-signature files))
 
 ;;;; Zettel creation
 (defun denote-fz-find-note (id)
@@ -207,7 +199,7 @@ If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
 VARIATION specifies how to modify the signature, FILE a file to use instead of the current buffer.
 Return string."
   (let* ((file (or file (buffer-file-name)))
-	 (signature (denote-fz-retrieve-filename-signature file)))
+	 (signature (denote-retrieve-filename-signature file)))
     (denote-fz-string-variation signature variation)))
 
 (defun denote-fz-first-note()
@@ -317,7 +309,7 @@ Return string."
 (defun denote-fz-dired-section ()
   (interactive)
   (let* ((file (dired-get-filename nil nil) )
-	 (signature (denote-fz-retrieve-filename-signature file))
+	 (signature (denote-retrieve-filename-signature file))
 	 (regex (denote-fz-create-regex-string signature 'full-section))
 	 (find-ls-option (denote-fz-set-find-ls-option
 			  regex)))
@@ -327,7 +319,7 @@ Return string."
 (defun denote-fz-dired-section-up ()
   (interactive)
   (let* ((file (or (dired-get-filename nil nil) (buffer-file-name)) )
-	 (signature (denote-fz-retrieve-filename-signature file))
+	 (signature (denote-retrieve-filename-signature file))
 	 (parent (denote-fz-string-variation signature 'parent))
 	 (find-ls-option (denote-fz-set-find-ls-option
 			  (concat (if (equal parent "")
@@ -344,7 +336,7 @@ includes only signature title and keywords. FILE is a denote path or string."
   (inline-quote
    (cons
     (let* ((file (or ,file (buffer-file-name)))
-	   (signature (denote-fz-retrieve-filename-signature file))
+	   (signature (denote-retrieve-filename-signature file))
 	   (title (denote-retrieve-filename-title file))
 	   (keywords (denote-extract-keywords-from-path file))
 	   (keywords-as-string (mapconcat 'identity keywords ", ")))
@@ -389,7 +381,7 @@ current buffer id. "
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
-	 (signature (denote-fz-retrieve-filename-signature file))
+	 (signature (denote-retrieve-filename-signature file))
 	 (section (if signature
 			   (denote-fz-create-regex-string signature 'section)
 			 "[0-9]+--"))
@@ -402,7 +394,7 @@ current buffer id. "
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
-	 (signature (denote-fz-retrieve-filename-signature file))
+	 (signature (denote-retrieve-filename-signature file))
 	 (full-section (if signature
 			   (denote-fz-create-regex-string signature 'full-section)
 			 "[0-9]+--"))
@@ -429,10 +421,11 @@ current buffer id. "
   :lighter denote-fz-mode-string
   (if denote-fz-mode
       (progn
-	(setq-local denote-rename-buffer-format "%s %t")
+	(setq denote-rename-buffer-format "%s %t")
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback))
-    (setq-local denote-rename-buffer-format "%t")))
+    (setq denote-rename-buffer-format "%t")
+    (denote-rename-buffer-rename-function-or-fallback)))
 
 (defvar denote-fz-dired-mode-map
   (let ((map (make-sparse-keymap)))
@@ -451,7 +444,7 @@ narrowing functions."
   (if denote-fz-mode
       (progn
 	(unless (eq major-mode 'dired-mode)
-	  (when (denote-fz-retrieve-filename-signature
+	  (when (denote-retrieve-filename-signature
 		 (buffer-file-name))
 	    (denote-fz-dired-signature-buffer))))))
 
