@@ -24,8 +24,8 @@ All the commands use the current directory (`default-directory`) they
 are supposed to be used from a folgezettel note or a directory
 containing one.
 
-To enable the mode you need `.dir-locals.el` in a zettelkasten
-directory.
+Enabling the mode in a zettelkasten silo. Just add the following
+variable in the `.dir-locals.el` file.
 
 ``` emacs-lisp
 ((nil . ((denote-fz-mode . t))))
@@ -35,33 +35,38 @@ directory.
 denote-fz provides the following functions for automatically creating
 notes with a folgezettel signature:
 
+> [!NOTE] 
+> Nested notes in a zettelkasten are not necessarily organized
+> in a hierarchy.The commands are named using neutral language but is difficult to
+> avoid denoting a specific relationship between the notes. 
+
 `denote-fz-first-note`
 
 Creates a note with signature "1".
 
-`denote-fz-insert-child`
+`denote-fz-insert`
 
-Prompts for a target note and creates a child note based in the target
-note's signature. A target note with a signature 2a4 would create the
-note 2a4a, if that note is already created it keeps looking for a
-valid signature for note creation.
-
-`denote-fz-insert-sibling`
-
-Prompts for a target note and creates a sibling note based in the
+Prompts for a target note and creates a nested note based in the
 target note's signature. A target note with a signature 2a4 would
-create a note 2a5, if that note is already created it keeps looking
+create the note 2a4a, if that note is already created it keeps looking
 for a valid signature for note creation.
 
-`denote-fz-insert-child-here`
+`denote-fz-insert-at-level`
 
-Same as denote-fz-insert-child but uses the current buffer's signature
-as the target.
+Prompts for a target note and creates a note at level with the target
+note's signature. A target note with a signature 2a4 would create a
+note 2a5, if that note is already created it keeps looking for a valid
+signature for note creation.
 
-`denote-fz-insert-sibling-here` 
+`denote-fz-insert-dwim`
 
-Same as denote-fz-insert-sibling but uses the current buffer's signature
-as the target.
+Same as denote-fz-insert but uses the current buffer's signature as
+the target.
+
+`denote-fz-insert-at-level-dwim` 
+
+Same as denote-fz-insert-at-level but uses the current buffer's
+signature as the target.
 
 ## Dynamic blocks
 
@@ -75,7 +80,6 @@ current buffer's id.
 Insert dblock with a regexp corresponding with the full-section of the
 current buffer's id.
 
-
 ## Navigation
 
 `denote-fz-find-file`
@@ -83,34 +87,32 @@ current buffer's id.
 Find a note using the minibuffer, the notes are sorted and pretty
 printed.
 
-`denote-fz-goto-parent`
+`denote-fz-goto-upper-level`
 
-Find the parent note corresponding with the current buffer's
+Find the upper level note corresponding with the current buffer's
 signature. Example: Using it in a 2a4 signature would find the 2a
 signature.
 
-`denote-fz-goto-child`
+`denote-fz-goto-nested`
 
-Find the first child note corresponding with the current buffer's
+Find the first nested note corresponding with the current buffer's
 signature. Example: Using it in a 2a4 signature would find the 2a4a
 signature.
 
-`denote-fz-goto-next-sibling`
+`denote-fz-goto-next`
 
-Find the next sibling note corresponding with the current buffer's
-signature. Example: Using it in a 2a4 signature would find the 2a5
-signature.
+Find the next note at level with the current buffer's signature.
+Example: Using it in a 2a4 signature would find the 2a5 signature.
 
-`denote-fz-goto-previous-sibling`
+`denote-fz-goto-previous`
 
-Find the previous sibling note corresponding with the current buffer's
-signature. Example: Using it in a 2a4c signature would find the 2a4b
-signature.
+Find the previous note at level with the current buffer's signature.
+Example: Using it in a 2a4c signature would find the 2a4b signature.
 
-`denote-fz-cycle-siblings`
+`denote-fz-cycle`
 
-Like `denote-fz-goto-next-sibling` but it moves to the first note of
-the sequence if it can't find the next sibling.
+Like `denote-fz-goto-next` but it moves to the first note of the
+sequence if it reaches the end.
 
 ## Dired integration
 
@@ -127,8 +129,9 @@ descendants of the dired file at point.
 `denote-fz-dired-section-up`
 
 Opens a dired buffer with the notes corresponding with all the
-descendants of the parent of the dired file at point.
+descendants of the upper level of the dired file at point.
 
 `denote-fz-dired-main-notes`
 
 Opens a dired buffer with all the top level notes.
+
