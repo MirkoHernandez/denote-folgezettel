@@ -131,7 +131,7 @@ descendants of the dired file at point.
 Opens a dired buffer with the notes corresponding with all the
 descendants of the upper level of the dired file at point.
 
-`denote-fz-dired-main-notes`
+`denote-fz-dired-top-level-notes`
 
 Opens a dired buffer with all the top level notes.
 

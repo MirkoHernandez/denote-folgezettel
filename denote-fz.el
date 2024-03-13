@@ -291,7 +291,7 @@ note of the target's signature id."
     (find-dired default-directory "")
     (denote-fz-dired-mode)))
 
-(defun denote-fz-dired-main-notes ()
+(defun denote-fz-dired-top-level-notes ()
   (interactive)
   (let ((find-ls-option (denote-fz-set-find-ls-option "[0-9]+--.*")))
     (find-dired default-directory "")
@@ -372,9 +372,10 @@ includes only signature title and keywords. FILE is a denote path or string."
                              :id-only nil))
     (org-update-dblock))
 
+
 (defun denote-fz-insert-section-dblock ()
- "Insert dblock with a regexp  corresponding with the section of the
-current buffer id. " 
+ "Insert   dblock   with   a    regexp   corresponding   with   the
+section (immediate descendents) of the current buffer id." 
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
