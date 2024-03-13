@@ -6,7 +6,7 @@
 ;; Maintainer: Mirko Hernandez <mirkoh@fastmail.com>>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Version: 0.1.0
-;; Keywords: notes zettelkasten folgezettel
+;; Keywords: denote notes zettelkasten folgezettel
 ;; URL: https://github.com/MirkoHernandez/denote-fz
 ;; Package-Requires: ((emacs "27.1") (denote "2.0.0"))
 
@@ -69,8 +69,8 @@ Used by `denote-fz-execute-find-command' to find related notes."
       (denote-fz-split-last id)
     (cl-case variation
       (parent  (if last-char-is-num
-		     (concat (denote-fz-trim-numbers id) "[^a-z]-")
-		   (concat id "[^0-9-]-")))
+		   (concat (denote-fz-trim-numbers id) "[^a-z]-")
+		 (concat id "[^0-9-]-")))
       (children  (if last-char-is-num
 		     (concat id "[^0-9-]+")
 		   (concat id "[^a-z-]+")))
@@ -161,17 +161,12 @@ Return string."
   (mapcar #'denote-retrieve-filename-signature files))
 
 ;;;; Zettel creation
-(defun denote-fz-find-note (id)
-  (let ((vertico-sort-function 'identity) ;; Prevents sorting by history
-	) 
-    (completing-read "note:" (split-string
-			      (denote-fz-search-files id))
-		     nil
-		     nil
-		     "==")))
+(defun denote-fz-find-note ()
+  (interactive)
+ (call-interactively 'denote-fz-find-file))
 
 (cl-defun denote-fz-custom (&key title keywords file subdirectory date template signature)
- "Helper function to facilitate the creation of notes with signatures." 
+  "Helper function to facilitate the creation of notes with signatures." 
   (interactive)
   (funcall-interactively 'denote
 			 (or title (denote-title-prompt))
@@ -207,44 +202,46 @@ Return string."
   (interactive)
   (denote-fz-create-note "1"))
 
-(defun denote-fz-insert-child-here()
-  "Uses the current buffer's signature as starting point"
+(defun denote-fz-insert-dwim()
+  "Uses the current buffer's signature as the target. Insert a child
+note of the target's signature id."
   (interactive)
   (denote-fz-create-note (denote-fz-derived-signature 'child)))
 
-(defun denote-fz-insert-sibling-here ()
-  "Uses the current buffer's signature as starting point"
+(defun denote-fz-insert-at-level-dwim ()
+  "Uses the current buffer's signature as the target. Insert a sibling
+note of the target's signature id."
   (interactive)
   (denote-fz-create-note (denote-fz-derived-signature 'sibling)))
 
-(defun denote-fz-insert-child ()
+(defun denote-fz-insert ()
   (interactive)
   (let ((file  (denote-fz-find-file)))
     (denote-fz-create-note (denote-fz-derived-signature 'child file))))
 
-(defun denote-fz-insert-sibling ()
+(defun denote-fz-insert-at-level ()
   (interactive)
   (let ((file  (denote-fz-find-file)))
     (denote-fz-create-note (denote-fz-derived-signature 'sibling file))))
 
 ;;; Zettel navigation
-(defun denote-fz-goto-parent ()
+(defun denote-fz-goto-upper-level ()
   (interactive)
   (let* ((parent-signature (denote-fz-derived-signature 'parent))
 	 (parent (string-trim (denote-fz-search-files parent-signature) nil "\n")))
     (if (not  (string-empty-p parent))
 	(find-file parent)
-      (message "Parent note does not exists."))))
+      (message "Note in upper level does not exists."))))
 
-(defun denote-fz-goto-child ()
+(defun denote-fz-goto-nested ()
   (interactive)
   (let* ((child-signature (denote-fz-derived-signature 'child))
 	 (child (string-trim (denote-fz-search-files child-signature) nil "\n")))
     (if (not  (string-empty-p child))
 	(find-file child)
-      (message "Child note does not exists."))))
+      (message "Nested note does not exists."))))
 
-(defun denote-fz-goto-next-sibling ()
+(defun denote-fz-goto-next ()
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
 	 (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n")))
@@ -252,7 +249,7 @@ Return string."
 	(find-file sibling)
       (message "%s" (propertize "Last Note of the sequence." 'face  'font-lock-warning-face)))))
 
-(defun denote-fz-goto-previous-sibling ()
+(defun denote-fz-goto-previous ()
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'decrement))
 	 (first-sibling-signature (denote-fz-derived-signature 'flat))
@@ -263,7 +260,7 @@ Return string."
 	  (when (equal sibling-signature first-sibling-signature)
 	    (message "%s" (propertize "First Note of the sequence." 'face  'font-lock-warning-face)))))))
 
-(defun denote-fz-cycle-siblings () 
+(defun denote-fz-cycle () 
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
 	 (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n"))
@@ -300,7 +297,7 @@ Return string."
     (find-dired default-directory "")
       (denote-fz-dired-mode)))
 
-(defun denote-fz-dired-parent ()
+(defun denote-fz-dired-up ()
   (interactive)
   (let ((find-ls-option (denote-fz-set-find-ls-option "[0-9]+--.*")))
     (find-dired default-directory "")
