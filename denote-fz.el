@@ -167,6 +167,7 @@ Return string."
   (interactive)
   (call-interactively 'denote-fz-find-file))
 
+
 (cl-defun denote-fz-custom (&key title keywords file subdirectory date template signature)
   "Helper function to facilitate the creation of notes with signatures." 
   (interactive)
@@ -189,7 +190,9 @@ If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
 	(denote-fz-custom :signature signature :keywords nil)
       (if (not no-auto-increment)
 	  (denote-fz-create-note (denote-fz-string-increment signature))
-	(message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face))))))
+	(if (equal signature "un")
+	    (denote-fz-custom :signature signature)
+	  (message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face)))))))
 
 (defun denote-fz-derived-signature (&optional variation file)
   "Retrieves the current buffer's signature and creates a variation of that signature.
@@ -203,6 +206,24 @@ Return string."
   "Create the first folgezettel note, with 1 as the signature."
   (interactive)
   (denote-fz-create-note "1"))
+
+(defun denote-fz-unnumbered ()
+ "Create an unnumbered note." 
+  (interactive)
+  (denote-fz-create-note "un" t))
+
+(defun denote-fz-unnumbered-cycle ()
+ "Cycle between unnumbered notes." 
+  (interactive)
+  (let* ((unnumbered-notes (split-string (denote-fz-search-files "un")))
+	 (unnumbered-array  (cl-map 'vector 'identity  unnumbered-notes))
+	 (array-length  (length unnumbered-array))
+	 (current-position (cl-position  (file-name-nondirectory (buffer-file-name)) unnumbered-array :test 'equal))
+	 (new-position (if (= (1+ current-position) array-length)
+			   0
+			 (1+ current-position))))
+    (find-file
+     (aref unnumbered-array new-position))))
 
 (defun denote-fz-insert-dwim()
   "Uses  the current  buffer's  signature as  the  target. Insert  a
