@@ -9,11 +9,12 @@ creation and for convenient navigation through a zettelkasten.
 
 ## Manual
 
-Download `denote-fz.el`, then use M-x `package-install-file`. M-x
-`package-initialize` may be required to recognize the package after
-installation.
+Download `denote-fz.el`, then use M-x `package-install-file`. 
 
-Denote 2.0.0 or above is required. 
+M-x `package-initialize` may be required to immediately recognize the package after installation.
+
+Denote 2.0.0 or above is required.
+
 For now *sed* and *awk* are also required for sorting dired buffers.
 
 # Usage
@@ -37,8 +38,8 @@ notes with a folgezettel signature:
 
 > [!NOTE] 
 > Nested notes in a zettelkasten are not necessarily organized
-> in a hierarchy.The commands are named using neutral language but is difficult to
-> avoid denoting a specific relationship between the notes. 
+> in a hierarchy. The commands are named in a neutral way to avoid
+> denoting a specific relationship between the notes.
 
 `denote-fz-first-note`
 
@@ -134,4 +135,3 @@ descendants of the upper level of the dired file at point.
 `denote-fz-dired-top-level-notes`
 
 Opens a dired buffer with all the top level notes.
-
