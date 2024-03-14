@@ -45,6 +45,10 @@ notes with a folgezettel signature:
 
 Creates a note with signature "1".
 
+`denote-fz-unnumbered`
+
+Creates a note with signature "un".
+
 `denote-fz-insert`
 
 Prompts for a target note and creates a nested note based in the
@@ -69,19 +73,11 @@ the target.
 Same as denote-fz-insert-at-level but uses the current buffer's
 signature as the target.
 
-## Dynamic blocks
-
-`denote-fz-insert-section-dblock` 
-
-Insert dblock with a regexp corresponding with the section of the
-current buffer's id.
-
-`denote-fz-insert-full-section-dblock` 
-
-Insert dblock with a regexp corresponding with the full-section of the
-current buffer's id.
-
 ## Navigation
+
+`denote-fz-unnumbered-cycle`
+
+Cycle between unnumbered notes.
 
 `denote-fz-find-file`
 
@@ -114,6 +110,19 @@ Example: Using it in a 2a4c signature would find the 2a4b signature.
 
 Like `denote-fz-goto-next` but it moves to the first note of the
 sequence if it reaches the end.
+
+## Dynamic blocks
+
+`denote-fz-insert-section-dblock` 
+
+Insert dblock with a regexp corresponding with the section of the
+current buffer's id.
+
+`denote-fz-insert-full-section-dblock` 
+
+Insert dblock with a regexp corresponding with the full-section of the
+current buffer's id.
+
 
 ## Dired integration
 
