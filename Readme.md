@@ -59,6 +59,7 @@ variable in the `.dir-locals.el` file.
 * [denote-fz-goto-next](#denote-fz-goto-next)
 * [denote-fz-goto-previous](#denote-fz-goto-previous)
 * [denote-fz-cycle](#denote-fz-cycle)
+* [denote-fz-follow-through](#denote-fz-follow-through)
 
 
 ### Dynamic blocks
@@ -158,6 +159,11 @@ Example: Using it in a 2a4c signature would find the 2a4b signature.
 
 Like `denote-fz-goto-next` but it moves to the first note of the
 sequence if it reaches the end.
+
+
+### denote-fz-follow-through
+
+Find the next contiguous note.
 
 ## Dynamic blocks
 
