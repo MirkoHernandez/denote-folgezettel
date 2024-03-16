@@ -47,7 +47,8 @@ variable in the `.dir-locals.el` file.
 * [denote-fz-insert-at-level](#denote-fz-insert-at-level)
 * [denote-fz-insert-dwim](#denote-fz-insert-dwim)
 * [denote-fz-insert-at-level-dwim](#denote-fz-insert-at-level-dwim)
-
+* [denote-fz-add-signature](#denote-fz-add-signature)
+* [denote-fz-add-signature-at-level](#denote-fz-add-signature-at-level)
 
 ### Navigation
 
@@ -109,6 +110,16 @@ the target.
 
 Same as denote-fz-insert-at-level but uses the current buffer's
 signature as the target.
+
+### denote-fz-add-signature
+
+Add a signature to an unnumbered note selecting a target note and
+creating a nested note using its signature.
+
+### denote-fz-add-signature-at-level
+
+Add a signature to an unnumbered note selecting a target note and
+creating a note at level using its signature.
 
 ## Navigation
 
