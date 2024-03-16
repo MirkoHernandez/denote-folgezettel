@@ -156,6 +156,12 @@ Return string."
     (t
      (denote-fz-execute-find-command (concat id "--")))))
 
+(defun denote-fz-find-valid-signature (signature)
+  "Find if SIGNATURE is valid signature for note creation. Keey incrementing
+the signature until a valid one is found." 
+    (if (string-empty-p (denote-fz-search-files signature))
+	signature
+      (denote-fz-find-valid-signature (denote-fz-string-increment  signature))))
 ;;;; Denote defuns
 (defun denote-fz-retrieve-ids (files)
  "Return a list of signatures corresponding to the list FILES." 
@@ -249,9 +255,28 @@ note of the target's signature id incremented by one."
   (let ((file  (denote-fz-find-file)))
     (denote-fz-create-note (denote-fz-derived-signature 'sibling file))))
 
-;;; Zettel navigation
+;;;; Zettel Editing 
+(defun denote-fz-add-signature (&optional file variation)
+  (interactive)
+  (let* ((file  (buffer-file-name))
+	 (file-type (denote-filetype-heuristics file))
+	 (title (denote-retrieve-title-value file file-type))
+	 (keywords (denote-retrieve-keywords-value file file-type))
+	 (current-signature  (denote-retrieve-filename-signature file))
+	 (keywords (denote-retrieve-keywords-value file file-type))
+	 (target (denote-fz-find-file))
+	 (signature  (denote-fz-find-valid-signature (denote-fz-derived-signature (or variation 'child) target))))
+    (if (equal "un" current-signature)
+	(denote-rename-file file title keywords signature)
+      (message "Not an unnumbered note."))))
+
+(defun denote-fz-add-signature-at-level (&optional file)
+  (interactive)
+  (denote-fz-add-signature file 'sibling)) 
+
+;;;; Zettel navigation
 (defun denote-fz-goto-upper-level ()
-"Visit the upper level note of the current buffer's signature id."  
+  "Visit the upper level note of the current buffer's signature id."  
   (interactive)
   (let* ((parent-signature (denote-fz-derived-signature 'parent))
 	 (parent (string-trim (denote-fz-search-files parent-signature) nil "\n")))
