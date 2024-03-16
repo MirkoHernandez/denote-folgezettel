@@ -88,14 +88,16 @@ Used by `denote-fz-execute-find-command' to find related notes."
   (cl-multiple-value-bind (string-without-last-char last-char)
       (denote-fz-split-last str)
     ;; Increment string that ends in 9.
-    (if  (equal last-char "9")
-	(cond ((equal string-without-last-char "")
-	       "10")
-	      ((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
-	       (concat (denote-fz-string-increment string-without-last-char) "0" ))
-	      ;; antecedent char is a letter, incrementing 9 to a 10.
-	      (t (concat  string-without-last-char  "10")))
-      (concat string-without-last-char (char-to-string (1+ (string-to-char last-char)))))))
+    (if (equal last-char "z")
+	(concat str "a")
+      (if  (equal last-char "9")
+	  (cond ((equal string-without-last-char "")
+		 "10")
+		((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
+		 (concat (denote-fz-string-increment string-without-last-char) "0" ))
+		;; antecedent char is a letter, incrementing 9 to 10.
+		(t (concat  string-without-last-char  "10")))
+	(concat string-without-last-char (char-to-string (1+ (string-to-char last-char))))))))
 
 (defun denote-fz-string-decrement (str)
   "Decrement the ascii value of the last character of STR.
@@ -103,13 +105,16 @@ Used for creating a Luhmann id."
   (cl-multiple-value-bind (string-without-last-char last-char)
       (denote-fz-split-last str)
     ;; Decrement string that ends in 0.
-    (if  (equal last-char "0")
-	(cond ((equal string-without-last-char "") ;; 0 can't be decremented, just return 0.
-	       "0")
-	      ((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
-	       (concat (denote-fz-string-decrement string-without-last-char) "9" ))
-	      (t (concat  string-without-last-char  "0")))
-      (concat string-without-last-char (char-to-string (1- (string-to-char last-char)))))))
+    (if (equal last-char "a")
+	string-without-last-char
+      (if  (equal last-char "0")
+	  (cond ((equal string-without-last-char "") ;; 0 can't be decremented, just return 0.
+		 "0")
+		((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
+		 (concat (denote-fz-string-decrement string-without-last-char) "9" ))
+		(t (concat  string-without-last-char  "0")))
+	(concat string-without-last-char (char-to-string (1- (string-to-char last-char))))))))
+
 
 ;; NOTE: This function manages almost all id manipulations.
 (defun denote-fz-string-variation (str variation)
