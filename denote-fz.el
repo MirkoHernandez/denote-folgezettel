@@ -329,6 +329,24 @@ first note of the current level."
       (find-file (string-trim (denote-fz-search-files first-sibling-signature) nil "\n"))
       (message "%s" (propertize "Last Note of the sequence." 'face  'font-lock-warning-face)))))
 
+(defun denote-fz-follow-through ()
+  "Find  the next  contiguous  note. Prioritize  nested notes,  then
+notes at the same level, then the next note in the upper level." 
+  (interactive)
+  (let* ((child-signature (denote-fz-derived-signature 'child))
+	 (child (string-trim (denote-fz-search-files child-signature) nil "\n")))
+    (if (not (string-empty-p child))
+	(find-file child)
+      (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
+	     (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n")))
+	(if (not (string-empty-p sibling))
+	    (find-file sibling)
+	  (let* ((parent-signature (denote-fz-derived-signature 'parent))
+		 (parent-incremented (string-trim (denote-fz-search-files (denote-fz-string-increment parent-signature)) nil "\n")))
+	    (if (not (string-empty-p parent-incremented))
+		(find-file parent-incremented)
+	      (message "%s" (propertize "Last Note." 'face  'font-lock-warning-face)))))))))
+
 ;;; Dired defuns
 (defun denote-fz-set-find-ls-option (&optional regex)
   "Create  find-ls-option (used  with  find-dired)  using REGEX,  if
