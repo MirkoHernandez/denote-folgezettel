@@ -166,22 +166,62 @@ Return string."
      (denote-fz-execute-find-command (concat id "--")))))
 
 (defun denote-fz-find-valid-signature (signature)
-  "Find if SIGNATURE is valid signature for note creation. Keey incrementing
+  "Find if SIGNATURE is valid signature for note creation. Keep incrementing
 the signature until a valid one is found." 
     (if (string-empty-p (denote-fz-search-files signature))
 	signature
       (denote-fz-find-valid-signature (denote-fz-string-increment  signature))))
-;;;; Denote defuns
-(defun denote-fz-retrieve-ids (files)
- "Return a list of signatures corresponding to the list FILES." 
-  (mapcar #'denote-retrieve-filename-signature files))
 
-;;;; Zettel creation
+(defun denote-fz-find-last-signature-at-level (file-or-signature)
+  (let* ((signature (if (denote-file-is-note-p file-or-signature )
+			(denote-retrieve-filename-signature file-or-signature)
+		      file-or-signature))
+	 (note (string-trim (denote-fz-search-files signature) nil "\n")))
+    (if (string-empty-p note)
+	nil
+      (let* ((next-note-signature (denote-fz-string-increment signature))
+	     (next-note
+	      (string-trim (denote-fz-search-files
+			    next-note-signature ) nil "\n")))
+	(if (string-empty-p next-note)
+	    signature
+	  (denote-fz-find-last-signature-at-level (denote-fz-string-increment signature)))))))
+
+(defun denote-fz-find-last-signature-nested (file-or-signature)
+  (let* ((signature (if (denote-file-is-note-p file-or-signature )
+			(denote-retrieve-filename-signature file-or-signature)
+		      file-or-signature))
+	 (note (string-trim (denote-fz-search-files signature ) nil "\n"))
+	 (child-signature (denote-fz-string-variation signature 'child))
+	 (child (string-trim (denote-fz-search-files child-signature ) nil "\n")))
+    (if (string-empty-p note)
+	nil
+      (if (string-empty-p child)
+	  signature
+	(let* ((last-child-signature (denote-fz-find-last-signature-at-level child))
+	       (last-child
+		(string-trim (denote-fz-search-files
+			      last-child-signature ) nil "\n")))
+	  (if (string-empty-p last-child)
+	      child-signature
+	    (denote-fz-find-last-signature-nested last-child-signature)))))))
+
+;;;; Denote defuns
 (defun denote-fz-find-note ()
   "Visit a note using `completing-read.' and a pretty printed list."
   (interactive)
   (call-interactively 'denote-fz-find-file))
 
+(defun denote-fz-visit-by-signature (signature)
+  (let ((note  (string-trim (denote-fz-search-files
+			     signature) nil "\n")))
+    (when (not (string-empty-p note))
+      (find-file note))))
+
+;;;; Zettel creation
+(defun denote-fz-retrieve-ids (files)
+  "Return a list of signatures corresponding to the list FILES." 
+  (mapcar #'denote-retrieve-filename-signature files))
 
 (cl-defun denote-fz-custom (&key title keywords file subdirectory date template signature)
   "Helper function to facilitate the creation of notes with signatures." 
