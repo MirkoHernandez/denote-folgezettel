@@ -209,12 +209,15 @@ If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
 	    (denote-fz-custom :signature signature)
 	  (message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face)))))))
 
-(defun denote-fz-derived-signature (&optional variation file)
+(defun denote-fz-derived-signature (&optional variation file-or-signature)
   "Retrieves the current buffer's signature and creates a variation of that signature.
-VARIATION specifies how to modify the signature, FILE a file to use instead of the current buffer.
-Return string."
-  (let* ((file (or file (buffer-file-name)))
-	 (signature (denote-retrieve-filename-signature file)))
+VARIATION    specifies    how    to   modify    the    signature,
+FILE-OR_SIGNATURE  a file  or  signature to  use  instead of  the
+current buffer. Return string."
+  (let* ((file-or-signature (or file-or-signature (buffer-file-name)))
+	 (signature (if (denote-file-is-note-p file-or-signature)
+			(denote-retrieve-filename-signature file-or-signature)
+		      file-or-signature)))
     (denote-fz-string-variation signature variation)))
 
 (defun denote-fz-first-note()
