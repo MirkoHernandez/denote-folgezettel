@@ -105,26 +105,28 @@ Used for creating a Luhmann id."
   (cl-multiple-value-bind (string-without-last-char last-char)
       (denote-fz-split-last str)
     ;; Decrement string that ends in a.
-    (if (equal last-char "a")
-	(if (string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
-	    str
+    (if (equal str "")
+	""
+      (if (equal last-char "a")
+	  (if (string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
+	      str
 	    string-without-last-char)
-    ;; Decrement string that ends in 0.
-      (if  (equal last-char "0")
-	  (cond ((equal string-without-last-char "") ;; 0 can't be decremented, just return 0.
-		 "0")
-		((equal string-without-last-char "1")  ;; decrement 10 to 9, not 09.
-		 "9") 
-		((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
-		 (concat (denote-fz-string-decrement string-without-last-char) "9" ))
-		(t (concat  string-without-last-char  "0")))
-	(concat string-without-last-char (char-to-string (1- (string-to-char last-char))))))))
+	;; Decrement string that ends in 0.
+	(if  (equal last-char "0")
+	    (cond ((equal string-without-last-char "") ;; 0 can't be decremented, just return 0.
+		   "0")
+		  ((equal string-without-last-char "1")  ;; decrement 10 to 9, not 09.
+		   "9") 
+		  ((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
+		   (concat (denote-fz-string-decrement string-without-last-char) "9" ))
+		  (t (concat  string-without-last-char  "0")))
+	  (concat string-without-last-char (char-to-string (1- (string-to-char last-char)))))))))
 
 ;; NOTE: This function manages almost all id manipulations.
 (defun denote-fz-string-variation (str variation)
   "Return a variation of the Luhmann id specified in STR.
 VARIATION indicates how to modify the id."
-  (when str
+  (when (and str (not (string-empty-p str)))
     (cl-multiple-value-bind (string-without-last-char last-char last-char-is-num)
 	(denote-fz-split-last str)
       (cl-case variation
@@ -166,7 +168,7 @@ Return string."
      (denote-fz-execute-find-command (concat id "--")))))
 
 (defun denote-fz-search-note (id &optional variation)
-  (let ((note  (string-trim (denote-fz-search-files id variation) nil "\n")))
+  (let ((note  (string-trim (denote-fz-search-files id variation) nil "\n") ))
     (if (string-empty-p note)
 	nil
       note)))
@@ -219,9 +221,9 @@ the signature until a valid one is found."
   (call-interactively 'denote-fz-find-file))
 
 (defun denote-fz-visit-by-signature (signature)
-  (let ((note  (string-trim (denote-fz-search-files
-			     signature) nil "\n")))
-    (when (not (string-empty-p note))
+  (let ((note  (denote-fz-search-note
+		signature) ))
+    (when note
       (find-file note))))
 
 ;;;; Zettel creation
@@ -247,7 +249,7 @@ the signature until a valid one is found."
 incrementing the signature until it finds a valid one for note creation.
 If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
   (let ((denote-user-enforced-denote-directory default-directory)) 
-    (if (string-empty-p (denote-fz-search-files signature))
+    (if (not (denote-fz-search-note signature))
 	(denote-fz-custom :signature signature :keywords nil)
       (if (not no-auto-increment)
 	  (denote-fz-create-note (denote-fz-string-increment signature))
@@ -337,18 +339,18 @@ note of the target's signature id incremented by one."
   "Visit the upper level note of the current buffer's signature id."  
   (interactive)
   (let* ((parent-signature (denote-fz-derived-signature 'parent))
-	 (parent (string-trim (denote-fz-search-files parent-signature) nil "\n")))
-    (if (not  (string-empty-p parent))
+	 (parent (denote-fz-search-note parent-signature)))
+    (if parent
 	(find-file parent)
       (message "Note in upper level does not exists."))))
 
 (defun denote-fz-goto-nested ()
- "Visit a note corresponding with  the current buffer's signature id
+  "Visit a note corresponding with  the current buffer's signature id
 first nested note." 
   (interactive)
   (let* ((child-signature (denote-fz-derived-signature 'child))
-	 (child (string-trim (denote-fz-search-files child-signature) nil "\n")))
-    (if (not  (string-empty-p child))
+	 (child (denote-fz-search-note child-signature)))
+    (if child
 	(find-file child)
       (message "Nested note does not exists."))))
 
@@ -366,7 +368,7 @@ first nested note."
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'decrement))
 	 (first-sibling-signature (denote-fz-derived-signature 'flat))
-	 (sibling (denote-fz-search-files sibling-signature)))
+	 (sibling (denote-fz-search-note sibling-signature)))
     (if sibling
 	(progn
 	  (find-file sibling)
@@ -384,7 +386,7 @@ first note of the current level."
 	 (first-sibling (denote-fz-search-note first-sibling-signature)))
     (if (not (string-empty-p sibling))
 	(find-file sibling)
-      (find-file (string-trim (denote-fz-search-files first-sibling-signature) nil "\n"))
+      (find-file (denote-fz-search-note first-sibling-signature))
       (message "%s" (propertize "Last Note of the sequence." 'face  'font-lock-warning-face)))))
 
 (defun denote-fz-follow-through ()
