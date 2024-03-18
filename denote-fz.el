@@ -165,10 +165,16 @@ Return string."
     (t
      (denote-fz-execute-find-command (concat id "--")))))
 
+(defun denote-fz-search-note (id &optional variation)
+  (let ((note  (string-trim (denote-fz-search-files id variation) nil "\n")))
+    (if (string-empty-p note)
+	nil
+      note)))
+
 (defun denote-fz-find-valid-signature (signature)
   "Find if SIGNATURE is valid signature for note creation. Keep incrementing
 the signature until a valid one is found." 
-    (if (string-empty-p (denote-fz-search-files signature))
+  (if (not (denote-fz-search-note signature))
 	signature
       (denote-fz-find-valid-signature (denote-fz-string-increment  signature))))
 
@@ -176,14 +182,14 @@ the signature until a valid one is found."
   (let* ((signature (if (denote-file-is-note-p file-or-signature )
 			(denote-retrieve-filename-signature file-or-signature)
 		      file-or-signature))
-	 (note (string-trim (denote-fz-search-files signature) nil "\n")))
-    (if (string-empty-p note)
+	 (note (denote-fz-search-note signature)))
+    (if (not note)
 	nil
       (let* ((next-note-signature (denote-fz-string-increment signature))
 	     (next-note
-	      (string-trim (denote-fz-search-files
-			    next-note-signature ) nil "\n")))
-	(if (string-empty-p next-note)
+	      (denote-fz-search-note
+	       next-note-signature)))
+	(if (not next-note)
 	    signature
 	  (denote-fz-find-last-signature-at-level (denote-fz-string-increment signature)))))))
 
@@ -191,18 +197,18 @@ the signature until a valid one is found."
   (let* ((signature (if (denote-file-is-note-p file-or-signature )
 			(denote-retrieve-filename-signature file-or-signature)
 		      file-or-signature))
-	 (note (string-trim (denote-fz-search-files signature ) nil "\n"))
+	 (note (denote-fz-search-note signature))
 	 (child-signature (denote-fz-string-variation signature 'child))
-	 (child (string-trim (denote-fz-search-files child-signature ) nil "\n")))
-    (if (string-empty-p note)
+	 (child (denote-fz-search-note child-signature )))
+    (if (not note)
 	nil
-      (if (string-empty-p child)
+      (if (not child)
 	  signature
 	(let* ((last-child-signature (denote-fz-find-last-signature-at-level child))
 	       (last-child
-		(string-trim (denote-fz-search-files
-			      last-child-signature ) nil "\n")))
-	  (if (string-empty-p last-child)
+		(denote-fz-search-note
+		 last-child-signature )))
+	  (if (not last-child)
 	      child-signature
 	    (denote-fz-find-last-signature-nested last-child-signature)))))))
 
@@ -350,8 +356,8 @@ first nested note."
   "Visit a note with the current buffer's signature id incremented by one unit." 
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
-	 (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n")))
-    (if (not (string-empty-p sibling))
+	 (sibling (denote-fz-search-note sibling-signature)))
+    (if sibling
 	(find-file sibling)
       (message "%s" (propertize "Last Note of the sequence." 'face  'font-lock-warning-face)))))
 
@@ -360,8 +366,8 @@ first nested note."
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'decrement))
 	 (first-sibling-signature (denote-fz-derived-signature 'flat))
-	 (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n")))
-    (if (not  (string-empty-p sibling))
+	 (sibling (denote-fz-search-files sibling-signature)))
+    (if sibling
 	(progn
 	  (find-file sibling)
 	  (when (equal sibling-signature first-sibling-signature)
@@ -373,9 +379,9 @@ by one unit. If the end of the sequence is reached start from the
 first note of the current level." 
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
-	 (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n"))
+	 (sibling (denote-fz-search-note sibling-signature))
 	 (first-sibling-signature (denote-fz-derived-signature 'flat))
-	 (first-sibling (string-trim (denote-fz-search-files first-sibling-signature) nil "\n")))
+	 (first-sibling (denote-fz-search-note first-sibling-signature)))
     (if (not (string-empty-p sibling))
 	(find-file sibling)
       (find-file (string-trim (denote-fz-search-files first-sibling-signature) nil "\n"))
