@@ -60,6 +60,7 @@ variable in the `.dir-locals.el` file.
 * [denote-fz-goto-previous](#denote-fz-goto-previous)
 * [denote-fz-cycle](#denote-fz-cycle)
 * [denote-fz-follow-through](#denote-fz-follow-through)
+* [denote-fz-backward-follow-through](#denote-fz-backward-follow-through)
 
 
 ### Dynamic blocks
@@ -164,6 +165,10 @@ sequence if it reaches the end.
 ### denote-fz-follow-through
 
 Find the next contiguous note.
+
+### denote-fz-backward-follow-through
+
+Find the previous contiguous note.
 
 ## Dynamic blocks
 

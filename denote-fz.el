@@ -394,18 +394,42 @@ first note of the current level."
 notes at the same level, then the next note in the upper level." 
   (interactive)
   (let* ((child-signature (denote-fz-derived-signature 'child))
-	 (child (string-trim (denote-fz-search-files child-signature) nil "\n")))
-    (if (not (string-empty-p child))
+	 (child (denote-fz-search-note child-signature) ))
+    (if child
 	(find-file child)
       (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
-	     (sibling (string-trim (denote-fz-search-files sibling-signature) nil "\n")))
-	(if (not (string-empty-p sibling))
+	     (sibling (denote-fz-search-note sibling-signature)))
+	(if sibling
 	    (find-file sibling)
 	  (let* ((parent-signature (denote-fz-derived-signature 'parent))
-		 (parent-incremented (string-trim (denote-fz-search-files (denote-fz-string-increment parent-signature)) nil "\n")))
-	    (if (not (string-empty-p parent-incremented))
+		 (parent-incremented (denote-fz-search-note (denote-fz-string-increment parent-signature))))
+	    (if parent-incremented
 		(find-file parent-incremented)
 	      (message "%s" (propertize "Last Note." 'face  'font-lock-warning-face)))))))))
+
+(defun denote-fz-backward-follow-through (&optional file)
+  "Find  the previous  contiguous  note. Prioritize  nested notes of the previous note,  then
+notes at the same level, then the previous note in the upper level." 
+  (interactive)
+  (let* ((current-signature (denote-retrieve-filename-signature (or file (buffer-file-name))))
+	 (previous-signature (denote-fz-derived-signature 'decrement file))
+	 (previous-note (denote-fz-search-note previous-signature) )
+	 (parent (denote-fz-search-note
+		  (denote-fz-derived-signature 'decrement
+					       (denote-fz-derived-signature 'parent))) )
+	 (last-child-signature (denote-fz-find-last-signature-nested previous-signature))
+	 (last-child (denote-fz-search-note last-child-signature)))
+    (if (equal current-signature previous-signature)
+	(denote-fz-visit-by-signature  (denote-fz-find-last-signature-nested parent))
+      (if (not (string-empty-p last-child))
+	  (find-file last-child)
+	(if (not (string-empty-p previous-note))
+	    (find-file previous-note)
+	  (let* ((parent-signature (denote-fz-derived-signature 'parent))
+		 (previous-parent (denote-fz-search-note (denote-fz-string-decrement parent-signature)) ))
+	    (if (not (string-empty-p previous-parent))
+		(find-file previous-parent)
+	      (message "%s" (propertize "First Note." 'face  'font-lock-warning-face)))))))))
 
 ;;; Dired defuns
 (defun denote-fz-set-find-ls-option (&optional regex)
