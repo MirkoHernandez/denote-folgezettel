@@ -29,6 +29,9 @@
 ;; This  packages  provides  functions  for  creating  and  navigating
 ;; folgezettel notes.
 
+(require 'denote)
+(require 'denote-rename-buffer)
+
 ;;;; Constants
 (defconst denote-fz-sort-command
   " | sed  's/--/=@/' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
@@ -631,6 +634,7 @@ current buffer id. "
       (define-key map denote-fz-keymap-prefix 'denote-fz-command-map))
     map)
   "Keymap used for `denote-fz-mode'.")
+
 
 ;;;###autoload
 (define-minor-mode denote-fz-mode
