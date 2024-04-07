@@ -17,6 +17,18 @@ Denote 2.0.0 or above is required.
 
 For now *sed* and *awk* are also required for sorting dired buffers.
 
+
+# Configuration
+
+The only configuration setting is the prefix key for the denote-fz commands.
+
+
+``` emacs-lisp
+(define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
+```
+
+For convenience all the navigation commands are added to the `repeat-map`.
+
 # Usage
 
 denote-fz is primarily a set of commands, each can be used on its own.
@@ -30,6 +42,13 @@ variable in the `.dir-locals.el` file.
 
 ``` emacs-lisp
 ((nil . ((denote-fz-mode . t))))
+```
+
+If the file is set as a silo it should look similar to this.
+
+``` emacs-lisp
+((nil . ((denote-directory . default-directory)
+	    (denote-fz-mode . t))))
 ```
 
 ## Functions
