@@ -583,8 +583,52 @@ current buffer id. "
 (defvar denote-fz-dired-mode-string
 " denote-fz-dired")
 
+
+(defcustom denote-fz-keymap-prefix nil
+  "denote-fz keymap prefix."
+  :group 'denote-fz
+  :type 'string)
+
+(defvar denote-fz-command-map
+  (let ((map (make-sparse-keymap)))
+   ;; Note creation 
+    (define-key map (kbd "I") #'denote-fz-insert)
+    (define-key map (kbd "i") #'denote-fz-insert-dwim)
+    (define-key map (kbd "L") #'denote-fz-insert-at-level)
+    (define-key map (kbd "l") #'denote-fz-insert-at-level-dwim)
+    (define-key map (kbd "u") #'denote-fz-create-unnumbered)
+   ;; Navigation
+    (define-key map (kbd "f") #'denote-fz-find-note)
+    (define-key map (kbd "t") #'denote-fz-unnumbered-cycle)
+    (define-key map (kbd "k") #'denote-fz-goto-previous)
+    (define-key map (kbd "j") #'denote-fz-goto-next)
+    (define-key map (kbd "n") #'denote-fz-goto-nested)
+    (define-key map (kbd "p") #'denote-fz-goto-upper-level)
+    (define-key map (kbd "c") #'denote-fz-cycle)
+    (define-key map (kbd ".") #'denote-fz-follow-through)
+    (define-key map (kbd ",") #'denote-fz-backward-follow-through)
+    ;; Dired
+    (define-key map (kbd "d") #'denote-fz-dired-mode)
+    (define-key map (kbd "m") #'denote-fz-dired-top-level-notes)
+    ;; DBlocks
+    (define-key map (kbd "q") #'denote-fz-insert-section-dblock)
+    (define-key map (kbd "w") #'denote-fz-insert-full-section-dblock)
+    map)
+  "Keymap for denote-fz commands after `denote-fz-keymap-prefix'.")
+
+(dolist (cmd '(denote-fz-goto-nested
+	       denote-fz-goto-upper-level
+	       denote-fz-goto-previous
+	       denote-fz-goto-next
+	       denote-fz-unnumbered-cycle
+	       denote-fz-follow-through
+	       denote-fz-backward-follow-through))
+  (put cmd 'repeat-map 'denote-fz-command-map))
+
 (defvar denote-fz-mode-map
   (let ((map (make-sparse-keymap)))
+    (when denote-fz-keymap-prefix
+      (define-key map denote-fz-keymap-prefix 'denote-fz-command-map))
     map)
   "Keymap used for `denote-fz-mode'.")
 
