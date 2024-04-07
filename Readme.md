@@ -22,7 +22,6 @@ For now *sed* and *awk* are also required for sorting dired buffers.
 
 The only configuration setting is the prefix key for the denote-fz commands.
 
-
 ``` emacs-lisp
 (define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
 ```

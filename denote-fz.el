@@ -596,7 +596,7 @@ current buffer id. "
     (define-key map (kbd "i") #'denote-fz-insert-dwim)
     (define-key map (kbd "L") #'denote-fz-insert-at-level)
     (define-key map (kbd "l") #'denote-fz-insert-at-level-dwim)
-    (define-key map (kbd "u") #'denote-fz-create-unnumbered)
+    (define-key map (kbd "u") #'denote-fz-unnumbered)
    ;; Navigation
     (define-key map (kbd "f") #'denote-fz-find-note)
     (define-key map (kbd "t") #'denote-fz-unnumbered-cycle)
