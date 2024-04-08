@@ -5,7 +5,6 @@ folgezettel id can be cumbersome and error prone; denote folgezettel
 (abbreviated denote-fz) provides commands for automatic signature
 creation and for convenient navigation through a zettelkasten.
 
-
 # Installation
 
 ## Manual
@@ -29,14 +28,15 @@ containing one.
 
 ## Enabling the mode in a denote silo
 
-Enabling the mode in a zettelkasten silo. Just add the following
+Enabling the mode in a zettelkasten silo (as a subdirectory). Just add the following
 variable in the `.dir-locals.el` file.
 
 ``` emacs-lisp
 ((nil . ((denote-fz-mode . t))))
 ```
 
-If the file is set as a silo it should look similar to this.
+If the directory itself is set as a silo, `.dir-locals.el`  should look similar to
+this.
 
 ``` emacs-lisp
 ((nil . ((denote-directory . default-directory)
@@ -45,7 +45,8 @@ If the file is set as a silo it should look similar to this.
 
 ## Keybindings
 
-The only configuration setting is the prefix key for the denote-fz commands.
+`denote-fz-command-map` includes some denote-fz bindings, it requires 
+
 
 ``` emacs-lisp
 (define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
@@ -53,28 +54,26 @@ The only configuration setting is the prefix key for the denote-fz commands.
 
 For convenience all the navigation commands are added to the `repeat-map`.
 
-
-| command                                | binding |
-|:---------------------------------------|:-------:|
-| `denote-fz-insert`                     | I       |
-| `denote-fz-insert-dwim`                | i       |
-| `denote-fz-insert-at-level`            | L       |
-| `denote-fz-insert-at-level-dwim`       | l       |
-| `denote-fz-unnumbered`                 | u       |
-| `denote-fz-find-note`                  | f       |
-| `denote-fz-unnumbered-cycle`           | t       |
-| `denote-fz-goto-previous`              | k       |
-| `denote-fz-goto-next`                  | j       |
-| `denote-fz-goto-nested`                | n       |
-| `denote-fz-goto-upper-level`           | p       |
-| `denote-fz-cycle`                      | c       |
-| `denote-fz-follow-through`             | .       |
-| `denote-fz-backward-follow-through`    | ,       |
-| `denote-fz-dired-mode`                 | d       |
-| `denote-fz-dired-top-level-notes`      | m       |
-| `denote-fz-insert-section-dblock`      | q       |
-| `denote-fz-insert-full-section-dblock` | w       |
-
+| command                                | binding      |
+|:---------------------------------------|:------------:|
+| `denote-fz-insert`                     | <kbd>I</kbd> |
+| `denote-fz-insert-dwim`                | <kbd>i</kbd> |
+| `denote-fz-insert-at-level`            | <kbd>L</kbd> |
+| `denote-fz-insert-at-level-dwim`       | <kbd>l</kbd> |
+| `denote-fz-unnumbered`                 | <kbd>u</kbd> |
+| `denote-fz-find-note`                  | <kbd>f</kbd> |
+| `denote-fz-unnumbered-cycle`           | <kbd>t</kbd> |
+| `denote-fz-goto-previous`              | <kbd>k</kbd> |
+| `denote-fz-goto-next`                  | <kbd>j</kbd> |
+| `denote-fz-goto-nested`                | <kbd>n</kbd> |
+| `denote-fz-goto-upper-level`           | <kbd>p</kbd> |
+| `denote-fz-cycle`                      | <kbd>c</kbd> |
+| `denote-fz-follow-through`             | <kbd>.</kbd> |
+| `denote-fz-backward-follow-through`    | <kbd>,</kbd> |
+| `denote-fz-dired-mode`                 | <kbd>d</kbd> |
+| `denote-fz-dired-top-level-notes`      | <kbd>m</kbd> |
+| `denote-fz-insert-section-dblock`      | <kbd>q</kbd> |
+| `denote-fz-insert-full-section-dblock` | <kbd>w</kbd> |
 
 ## Functions
 
