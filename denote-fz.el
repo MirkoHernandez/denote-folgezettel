@@ -587,6 +587,11 @@ current buffer id. "
 " denote-fz-dired")
 
 
+(defcustom denote-fz-mode-hook nil
+  "Run at the very end of `denote-fz-mode'."
+  :group 'denote-fz
+  :type 'hook)
+
 (defcustom denote-fz-keymap-prefix nil
   "denote-fz keymap prefix."
   :group 'denote-fz
@@ -646,9 +651,11 @@ current buffer id. "
       (progn
 	(setq denote-rename-buffer-format "%s %t")
 	(denote-rename-buffer-mode t)
-	(denote-rename-buffer-rename-function-or-fallback))
-    (setq denote-rename-buffer-format "%t")
-    (denote-rename-buffer-rename-function-or-fallback)))
+	(denote-rename-buffer-rename-function-or-fallback)
+	(run-mode-hooks 'denote-fz-mode-hook))
+    (progn 
+      (setq denote-rename-buffer-format "%t")
+      (denote-rename-buffer-rename-function-or-fallback))))
 
 (defvar denote-fz-dired-mode-map
   (let ((map (make-sparse-keymap)))
