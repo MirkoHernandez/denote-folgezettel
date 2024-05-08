@@ -560,7 +560,7 @@ section (immediate descendents) of the current buffer id."
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
 	 (signature (denote-retrieve-filename-signature file))
-	 (section (if signature
+	 (section (if (not (equal signature ""))
 			   (denote-fz-create-regex-string signature 'section)
 			 "[0-9]+--"))
 	 (regexp (concat parent-dir ".*==" section)))
@@ -573,7 +573,7 @@ current buffer id. "
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
 	 (signature (denote-retrieve-filename-signature file))
-	 (full-section (if signature
+	 (full-section (if (not (equal signature ""))
 			   (denote-fz-create-regex-string signature 'full-section)
 			 "[0-9]+--"))
 	 (regexp (concat parent-dir ".*==" full-section)))
@@ -618,6 +618,8 @@ current buffer id. "
     ;; Dired
     (define-key map (kbd "d") #'denote-fz-dired-mode)
     (define-key map (kbd "m") #'denote-fz-dired-top-level-notes)
+    (define-key map (kbd "a") #'denote-fz-dired-signature-buffer)
+    (define-key map (kbd "s") #'denote-fz-dired-section)
     ;; DBlocks
     (define-key map (kbd "q") #'denote-fz-insert-section-dblock)
     (define-key map (kbd "w") #'denote-fz-insert-full-section-dblock)
