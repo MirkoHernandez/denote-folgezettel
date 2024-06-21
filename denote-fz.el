@@ -415,7 +415,7 @@ notes at the same level, then the next note in the upper level."
 notes at the same level, then the previous note in the upper level." 
   (interactive)
   (let* ((current-signature (denote-retrieve-filename-signature (or file (buffer-file-name))))
-	 (previous-signature (denote-fz-derived-signature 'decrement file))
+	 (previous-signature (denote-fz-derived-signature 'decrement current-signature))
 	 (previous-note (denote-fz-search-note previous-signature) )
 	 (parent (denote-fz-search-note
 		  (denote-fz-derived-signature 'decrement
@@ -423,14 +423,16 @@ notes at the same level, then the previous note in the upper level."
 	 (last-child-signature (denote-fz-find-last-signature-nested previous-signature))
 	 (last-child (denote-fz-search-note last-child-signature)))
     (if (equal current-signature previous-signature)
-	(denote-fz-visit-by-signature  (denote-fz-find-last-signature-nested parent))
-      (if (not (string-empty-p last-child))
+	(if parent
+	    (denote-fz-visit-by-signature  (denote-fz-find-last-signature-nested parent))
+	  (message "%s" (propertize "First Note." 'face  'font-lock-warning-face)))
+      (if (and last-child (not (string-empty-p last-child)))
 	  (find-file last-child)
-	(if (not (string-empty-p previous-note))
+	(if (and previous-note (not (string-empty-p previous-note)))
 	    (find-file previous-note)
 	  (let* ((parent-signature (denote-fz-derived-signature 'parent))
 		 (previous-parent (denote-fz-search-note (denote-fz-string-decrement parent-signature)) ))
-	    (if (not (string-empty-p previous-parent))
+	    (if (and previous-parent (not (string-empty-p previous-parent)))
 		(find-file previous-parent)
 	      (message "%s" (propertize "First Note." 'face  'font-lock-warning-face)))))))))
 
