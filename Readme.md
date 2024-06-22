@@ -1,35 +1,51 @@
 # Denote Folgezettel
 
-Creating denote notes with signatures that correspond with a
-folgezettel id can be cumbersome and error prone; denote folgezettel
-(abbreviated denote-fz) provides commands for automatic signature
-creation and for convenient navigation through a zettelkasten.
+denote folgezettel (abbreviated denote-fz) is a minor mode that provides commands for
+automatic signature creation and convenient navigation through a
+zettelkasten.
+
+Creating signatures that correspond with a folgezettel id can be
+cumbersome and error prone, providing a solution for this is the
+primary motivation of denote-fz.
 
 # Installation
 
-## Manual
-
-Download `denote-fz.el`, then use M-x `package-install-file`. 
-
-M-x `package-initialize` may be required to immediately recognize the package after installation.
+## Requirements
 
 Denote 2.0.0 or above is required.
 
 For now *sed* and *awk* are also required for sorting dired buffers.
 
+## Manual
+
+denote-fz is not available on MELPA. To install manually, download
+`denote-fz.el`.
+
+```console
+$ git clone https://github.com/MirkoHernandez/denote-folgezettel
+```
+Then  use M-x `package-install-file` to install the package. M-x `package-initialize` may be required to immediately recognize the
+package after installation.
+
+
 
 # Usage
 
-denote-fz is primarily a set of commands, each can be used on its own.
+denote-fz is primarily a set of commands, each can be used
+independently after the mode is activated. The minor mode is used only
+to provide a means for setting keybindings and, more importantly, to
+set `denote-rename-buffer-mode` so that it displays the signature in
+the modeline.
 
 All the commands use the current directory (`default-directory`) they
 are supposed to be used from a folgezettel note or a directory
-containing one.
+containing one. It is expected that all the folgezettel notes are
+inside the same directory.
 
 ## Enabling the mode in a denote silo
 
-Enabling the mode in a zettelkasten silo (as a subdirectory). Just add the following
-variable in the `.dir-locals.el` file.
+To enable the mode in a zettelkasten silo (maybe as a subdirectory of
+a denote silo) you can add the following variable in the `.dir-locals.el` file.
 
 ``` emacs-lisp
 ((nil . ((denote-fz-mode . t))))
@@ -218,13 +234,14 @@ Find the previous contiguous note.
 ### denote-fz-insert-section-dblock 
 
 Insert dblock with a regexp corresponding with the section of the
-current buffer's id.
+current buffer's signature. A signature 2 would generate a dblock with
+the notes 2a 2b 2c, etc.
 
 ### denote-fz-insert-full-section-dblock 
 
 Insert dblock with a regexp corresponding with the full-section of the
-current buffer's id.
-
+current buffer's signature. A signature 2 would generate a dblock with
+the notes 2a 2a1 2a2a2 2b 2b1a, etc.
 
 ## Dired integration
 
