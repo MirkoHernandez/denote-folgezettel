@@ -562,7 +562,7 @@ section (immediate descendents) of the current buffer id."
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
 	 (signature (denote-retrieve-filename-signature file))
-	 (section (if (not (equal signature ""))
+	 (section (if (and signature (not (string-empty-p signature)))
 			   (denote-fz-create-regex-string signature 'section)
 			 "[0-9]+--"))
 	 (regexp (concat parent-dir ".*==" section)))
@@ -653,12 +653,12 @@ current buffer id. "
   :lighter denote-fz-mode-string
   (if denote-fz-mode
       (progn
-	(setq denote-rename-buffer-format "%s %t")
+	(setq denote-rename-buffer-format  "%s %t")
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback)
-	(run-mode-hooks 'denote-fz-mode-hook))
-    (progn 
-      (setq denote-rename-buffer-format "%t")
+	(run-mode-hooks 'denote-fz-mode-hook))	
+    (progn
+      (setq (denote-rename-buffer-format  "%t"))
       (denote-rename-buffer-rename-function-or-fallback))))
 
 (defvar denote-fz-dired-mode-map
