@@ -658,8 +658,8 @@ current buffer id. "
 	(denote-rename-buffer-rename-function-or-fallback)
 	(run-mode-hooks 'denote-fz-mode-hook))	
     (progn
-      (setq (denote-rename-buffer-format  "%t"))
-      (denote-rename-buffer-rename-function-or-fallback))))
+      (setq denote-rename-buffer-format  "%t"))
+      (denote-rename-buffer-rename-function-or-fallback)))
 
 (defvar denote-fz-dired-mode-map
   (let ((map (make-sparse-keymap)))
