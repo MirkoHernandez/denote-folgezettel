@@ -581,13 +581,14 @@ current buffer id. "
 	 (regexp (concat parent-dir ".*==" full-section)))
     (denote-fz-insert-dblock regexp)))
 
-;;;; denote-fz-mode 
+;;;; denote-fz-mode
+(defvar denote-fz-use-dired-mode t)
+
 (defvar denote-fz-mode-string
-" denote-fz")
+" d-fz")
 
 (defvar denote-fz-dired-mode-string
-" denote-fz-dired")
-
+" d-fzd")
 
 (defcustom denote-fz-mode-hook nil
   "Run at the very end of `denote-fz-mode'."
@@ -654,10 +655,13 @@ current buffer id. "
   (if denote-fz-mode
       (progn
 	(setq denote-rename-buffer-format  "%s %t")
+	(when denote-fz-use-dired-mode
+          (advice-add 'dired-jump :override #'denote-fz-dired-mode))
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback)
 	(run-mode-hooks 'denote-fz-mode-hook))	
     (progn
+      (advice-remove 'dired-jump #'denote-fz-dired-mode)
       (setq denote-rename-buffer-format  "%t"))
       (denote-rename-buffer-rename-function-or-fallback)))
 
@@ -678,9 +682,9 @@ narrowing functions."
   (if denote-fz-mode
       (progn
 	(unless (eq major-mode 'dired-mode)
-	  (when (denote-retrieve-filename-signature
-		 (buffer-file-name))
-	    (denote-fz-dired-signature-buffer))))))
+	  (denote-fz-dired-signature-buffer)))
+    (progn
+      (call-interactively (advice--cd*r (symbol-function #'dired-jump))))))
 
 (provide 'denote-fz)
 ;;; denote-fz.el ends here

@@ -8,13 +8,13 @@ Creating signatures that correspond with a folgezettel id can be
 cumbersome and error prone, providing a solution for this is the
 primary motivation of denote-fz.
 
-# Installation
-
-## Requirements
+# Requirements
 
 Denote 2.0.0 or above is required.
 
 For now *sed* and *awk* are also required for sorting dired buffers.
+
+# Installation
 
 ## Manual
 
@@ -27,15 +27,18 @@ $ git clone https://github.com/MirkoHernandez/denote-folgezettel
 Then  use M-x `package-install-file` to install the package. M-x `package-initialize` may be required to immediately recognize the
 package after installation.
 
-
-
 # Usage
 
 denote-fz is primarily a set of commands, each can be used
-independently after the mode is activated. The minor mode is used only
-to provide a means for setting keybindings and, more importantly, to
-set `denote-rename-buffer-mode` so that it displays the signature in
-the modeline.
+independently after the mode is activated. The minor mode provides a
+means for setting keybindings and, more importantly, to set
+`denote-rename-buffer-mode` so that it displays the signature in the
+modeline.
+
+`dired-jump` is adviced so that it calls `denote-fz-dired-mode`
+instead, this mode creates a dired buffer with the files sorted by
+folgezettel. To disable this you can set `denote-fz-use-dired-mode`to
+nil.
 
 All the commands use the current directory (`default-directory`) they
 are supposed to be used from a folgezettel note or a directory
