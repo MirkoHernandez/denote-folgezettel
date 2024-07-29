@@ -119,11 +119,11 @@ change the default note creation function.
 
 The default note creation function `denote-fz-create` (used in the
 following example) creates the note using
-`denote-user-enforced-denote-directory` otherwise it should be
+`denote-user-enforced-denote-directory` otherwise this step should be
 included manually.
 
 Here is an example of a command that creates a note and also uses
-`citar-denote-add-citekey` from the citar-denote package to add a
+`citar-denote-add-citekey`, from the citar-denote package, to add a
 citekey.
 
 ``` emacs-lisp
@@ -287,8 +287,8 @@ Find the previous contiguous note.
 ## Dynamic blocks
 
 > [!NOTE]
-> "Section" here is the list of immediate descendants of a given note; "full section"
-> the list of all descendants. 
+> "Section" here means the list of immediate descendants of a given note; "full section"
+> means the list of all descendants. 
 
 ### denote-fz-insert-section-dblock 
 
