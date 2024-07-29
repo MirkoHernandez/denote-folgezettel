@@ -24,8 +24,12 @@ denote-fz is not available on MELPA. To install manually, download
 ```console
 $ git clone https://github.com/MirkoHernandez/denote-folgezettel
 ```
-Then  use M-x `package-install-file` to install the package. M-x `package-initialize` may be required to immediately recognize the
-package after installation.
+
+Then the package can be loaded using `(load <path-to-the-package> t)`
+or installed using M-x `package-install-file`.
+
+M-x `package-initialize` may be required to immediately recognize the
+package after installation (just once after the installation).
 
 # Usage
 
@@ -37,7 +41,7 @@ modeline.
 
 `dired-jump` is adviced so that it calls `denote-fz-dired-mode`
 instead, this mode creates a dired buffer with the files sorted by
-folgezettel. To disable this you can set `denote-fz-use-dired-mode`to
+folgezettel. To disable this you can set `denote-fz-replace-dired-mode`to
 nil.
 
 All the commands use the current directory (`default-directory`) they
@@ -71,7 +75,7 @@ this.
 (define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
 ```
 
-For convenience all the navigation commands are added to the `repeat-map`.
+For convenience most of the navigation commands are added to the `repeat-map`.
 
 | command                                | binding      |
 |:---------------------------------------|:------------:|
@@ -79,9 +83,10 @@ For convenience all the navigation commands are added to the `repeat-map`.
 | `denote-fz-insert-dwim`                | <kbd>i</kbd> |
 | `denote-fz-insert-at-level`            | <kbd>L</kbd> |
 | `denote-fz-insert-at-level-dwim`       | <kbd>l</kbd> |
-| `denote-fz-unnumbered`                 | <kbd>u</kbd> |
+| `denote-fz-unnumbered`                 | <kbd>U</kbd> |
 | `denote-fz-find-note`                  | <kbd>f</kbd> |
-| `denote-fz-unnumbered-cycle`           | <kbd>t</kbd> |
+| `denote-fz-find-note-in-full-section`  | <kbd>F</kbd> |
+| `denote-fz-unnumbered-cycle`           | <kbd>u</kbd> |
 | `denote-fz-goto-previous`              | <kbd>k</kbd> |
 | `denote-fz-goto-next`                  | <kbd>j</kbd> |
 | `denote-fz-goto-nested`                | <kbd>n</kbd> |
@@ -116,6 +121,7 @@ For convenience all the navigation commands are added to the `repeat-map`.
 
 * [denote-fz-unnumbered-cycle](#denote-fz-unnumbered-cycle)
 * [denote-fz-find-note](#denote-fz-find-note)
+* [denote-fz-find-note-in-full-section](#denote-fz-find-note-in-full-section)
 * [denote-fz-goto-upper-level](#denote-fz-goto-upper-level)
 * [denote-fz-goto-nested](#denote-fz-goto-nested)
 * [denote-fz-goto-next](#denote-fz-goto-next)
@@ -123,7 +129,6 @@ For convenience all the navigation commands are added to the `repeat-map`.
 * [denote-fz-cycle](#denote-fz-cycle)
 * [denote-fz-follow-through](#denote-fz-follow-through)
 * [denote-fz-backward-follow-through](#denote-fz-backward-follow-through)
-
 
 ### Dynamic blocks
 
@@ -196,27 +201,33 @@ Cycle between unnumbered notes.
 Find a note using the minibuffer, the notes are sorted and pretty
 printed.
 
+### denote-fz-find-note-in-full-section
+
+Find a note using the minibuffer, the completion list consist of all
+the notes that start from the base of the current note's signature.
+Using it on signature 20a5c would display all descendants of note 20.
+
 ### denote-fz-goto-upper-level
 
 Find the upper level note corresponding with the current buffer's
-signature. Example: Using it in a 2a4 signature would find the 2a
+signature. Example: Using it on a 2a4 signature would find the 2a
 signature.
 
 ### denote-fz-goto-nested
 
 Find the first nested note corresponding with the current buffer's
-signature. Example: Using it in a 2a4 signature would find the 2a4a
+signature. Example: Using it on a 2a4 signature would find the 2a4a
 signature.
 
 ### denote-fz-goto-next
 
 Find the next note at level with the current buffer's signature.
-Example: Using it in a 2a4 signature would find the 2a5 signature.
+Example: Using it on a 2a4 signature would find the 2a5 signature.
 
 ### denote-fz-goto-previous
 
 Find the previous note at level with the current buffer's signature.
-Example: Using it in a 2a4c signature would find the 2a4b signature.
+Example: Using it on a 2a4c signature would find the 2a4b signature.
 
 ### denote-fz-cycle
 
@@ -239,6 +250,10 @@ Find the previous contiguous note.
 Insert dblock with a regexp corresponding with the section of the
 current buffer's signature. A signature 2 would generate a dblock with
 the notes 2a 2b 2c, etc.
+
+> [!NOTE]
+> "Section" here is the list of immediate descendants of a given note; "full section"
+> the list of all descendants. 
 
 ### denote-fz-insert-full-section-dblock 
 
