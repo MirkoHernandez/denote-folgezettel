@@ -32,6 +32,15 @@
 (require 'denote)
 (require 'denote-rename-buffer)
 
+(defvar denote-fz-create-function 'denote-fz-create
+  "Function used to create notes with a a folgezettel signature.
+The function  must create a  denote note and  it should accept  a single
+SIGNATURE parameter." )
+
+(defvar denote-fz-commands
+  '(denote-fz-create)
+  "List of commands that denote-fz can use to create notes.")
+
 ;;;; Constants
 (defconst denote-fz-sort-command
   " | sed  's/--/=@/' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
@@ -259,7 +268,9 @@ the signature until a valid one is found."
   (interactive)
   (funcall-interactively 'denote
 			 (or title (denote-title-prompt))
-			 (or keywords (denote-keywords-prompt))
+			 (or keywords
+			     (and (member 'keywords denote-prompts)
+				  (denote-keywords-prompt)))
 			 ;; this is the filetype value
 			 (and file (denote-filetype-heuristics file))
 			 (and subdirectory (denote-subdirectory-prompt))
@@ -267,18 +278,46 @@ the signature until a valid one is found."
 			 (and template (denote-template-prompt))
 			 (or signature nil)))
 
+(defun denote-fz-create (signature)
+  "This is the default `denote-fz-create-function'. It creates a note
+using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
+`denote-prompts'"
+  (interactive)
+  (let ((denote-user-enforced-denote-directory default-directory))
+    (denote (and (member 'title denote-prompts)
+		 (denote-title-prompt))
+	    (and (member 'keywords denote-prompts)
+		 (denote-keywords-prompt))
+	    ;; this is the filetype value
+	    (and (member 'file-type denote-prompts)
+		 (denote-file-type-prompt))
+	    (and (member 'subdirectory denote-prompts)
+		 (denote-subdirectory-prompt))
+	    (and (member 'date denote-prompts) 
+		 (denote-date-prompt))
+	    (and (member 'template denote-prompts) 
+		 (denote-template-prompt))
+	    signature)))
+
+(defun denote-fz-select-command ()
+  "Select a `denote-fz-create-function' from the list `denote-fz-commands'." 
+  (interactive)
+  (setq denote-fz-create-function
+	(intern
+	 (completing-read
+	  "Command: " denote-fz-commands ))))
+
 (defun denote-fz-create-note (signature &optional no-auto-increment)
   "Creates a  note using SIGNATURE.If  the note already  exists keep
 incrementing the signature until it finds a valid one for note creation.
 If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
-  (let ((denote-user-enforced-denote-directory default-directory)) 
     (if (not (denote-fz-search-note signature))
-	(denote-fz-custom :signature signature :keywords nil)
+	(funcall denote-fz-create-function signature)
       (if (not no-auto-increment)
 	  (denote-fz-create-note (denote-fz-string-increment signature))
 	(if (equal signature "un")
-	    (denote-fz-custom :signature signature)
-	  (message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face)))))))
+	    (funcall denote-fz-create-function signature)
+	  (message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face))))))
 
 (defun denote-fz-derived-signature (&optional variation file-or-signature)
   "Retrieves the current buffer's signature and creates a variation of that signature.
@@ -535,7 +574,7 @@ includes only signature title and keywords. FILE is a denote path or string."
 	   (title (denote-retrieve-filename-title file))
 	   (keywords (denote-extract-keywords-from-path file))
 	   (keywords-as-string (mapconcat 'identity keywords ", ")))
-      (format (concat "%s %s " (if keywords "-" "") "%s")
+      (format "%-6s %s %s"
 	      (propertize (or signature "") 'face 'font-lock-warning-face)
 	      (propertize title 'face 'font-lock-doc-face)
 	      (propertize keywords-as-string 'face 'font-lock-note-face)))
@@ -628,6 +667,7 @@ current buffer id. "
     (define-key map (kbd "L") #'denote-fz-insert-at-level)
     (define-key map (kbd "l") #'denote-fz-insert-at-level-dwim)
     (define-key map (kbd "U") #'denote-fz-unnumbered)
+    (define-key map (kbd "S") #'denote-fz-select-command)
    ;; Navigation
     (define-key map (kbd "u") #'denote-fz-unnumbered-cycle)
     (define-key map (kbd "f") #'denote-fz-find-note)
@@ -676,7 +716,7 @@ current buffer id. "
   (if denote-fz-mode
       (progn
 	(setq denote-rename-buffer-format  "%s %t")
-	(when denote-fz-use-dired-mode
+	(when denote-fz-replace-dired-mode
           (advice-add 'dired-jump :override #'denote-fz-dired-mode))
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback)
