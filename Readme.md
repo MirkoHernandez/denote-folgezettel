@@ -84,6 +84,7 @@ For convenience most of the navigation commands are added to the
 | `denote-fz-insert-at-level`            | <kbd>L</kbd> |
 | `denote-fz-insert-at-level-dwim`       | <kbd>l</kbd> |
 | `denote-fz-unnumbered`                 | <kbd>U</kbd> |
+| `denote-fz-select-command`             | <kbd>S</kbd> |
 | `denote-fz-find-note`                  | <kbd>f</kbd> |
 | `denote-fz-find-note-in-full-section`  | <kbd>F</kbd> |
 | `denote-fz-unnumbered-cycle`           | <kbd>u</kbd> |
@@ -96,8 +97,43 @@ For convenience most of the navigation commands are added to the
 | `denote-fz-backward-follow-through`    | <kbd>,</kbd> |
 | `denote-fz-dired-mode`                 | <kbd>d</kbd> |
 | `denote-fz-dired-top-level-notes`      | <kbd>m</kbd> |
+| `denote-fz-dired-signature-buffer`     | <kbd>a</kbd> |
+| `denote-fz-dired-section`              | <kbd>s</kbd> |
 | `denote-fz-insert-section-dblock`      | <kbd>q</kbd> |
 | `denote-fz-insert-full-section-dblock` | <kbd>w</kbd> |
+
+## Other configuration options
+
+`denote-fz-commands` can be set to a list of valid denote-fz commands
+for note creation, these commands must take a signature as an argument
+and create a denote note in the proper directory (`denote-user-enforced-denote-directory` can be used for this purpose).
+
+The variable `denote-fz-create-function` can be used to permanently
+change the default note creation function.
+
+``` emacs-lisp
+(setq denote-fz-commands
+      '(denote-fz-create
+	my/denote-fz-citar))
+```
+
+The default note creation function `denote-fz-create` (used in the
+following example) creates the note using
+`denote-user-enforced-denote-directory` otherwise it should be
+included manually.
+
+Here is an example of a command that creates a note and also uses
+`citar-denote-add-citekey` from the citar-denote package to add a
+citekey.
+
+``` emacs-lisp
+(defun my/denote-fz-citar (signature)
+  (interactive) 
+  (let ((denote-after-new-note-hook '(denote-rename-buffer-rename-function-or-fallback
+				      save-buffer 
+				      citar-denote-add-citekey)))
+    (funcall 'denote-fz-create signature)))
+```
 
 ## Documentation
 
@@ -107,7 +143,6 @@ For convenience most of the navigation commands are added to the
 > denoting a specific relationship between the notes.
 
 ### Note creation
-
 * [denote-fz-first-note](#denote-fz-first-note)
 * [denote-fz-unnumbered](#denote-fz-unnumbered)
 * [denote-fz-insert](#denote-fz-insert)
@@ -116,6 +151,7 @@ For convenience most of the navigation commands are added to the
 * [denote-fz-insert-at-level-dwim](#denote-fz-insert-at-level-dwim)
 * [denote-fz-add-signature](#denote-fz-add-signature)
 * [denote-fz-add-signature-at-level](#denote-fz-add-signature-at-level)
+* [denote-fz-select-command](#denote-fz-select-command)
 
 ### Navigation
 
@@ -189,6 +225,11 @@ creating a nested note using its signature.
 
 Add a signature to an unnumbered note selecting a target note and
 creating a note at level using its signature.
+
+### denote-fz-select-command
+
+Changes the note creation function to one from the list
+`denote-fz-commands`.
 
 ## Navigation
 
