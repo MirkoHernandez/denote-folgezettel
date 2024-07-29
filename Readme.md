@@ -66,16 +66,16 @@ this.
 	    (denote-fz-mode . t))))
 ```
 
-## Keybindings
+## Keybinding Configuration
 
-`denote-fz-command-map` includes some denote-fz bindings, it requires 
-
+The `denote-fz-command-map` includes all the denote-fz bindings.
 
 ``` emacs-lisp
 (define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
 ```
 
-For convenience most of the navigation commands are added to the `repeat-map`.
+For convenience most of the navigation commands are added to the
+`repeat-map`.
 
 | command                                | binding      |
 |:---------------------------------------|:------------:|
@@ -99,7 +99,7 @@ For convenience most of the navigation commands are added to the `repeat-map`.
 | `denote-fz-insert-section-dblock`      | <kbd>q</kbd> |
 | `denote-fz-insert-full-section-dblock` | <kbd>w</kbd> |
 
-## Functions
+## Documentation
 
 > [!NOTE] 
 > Nested notes in a zettelkasten are not necessarily organized
@@ -245,15 +245,15 @@ Find the previous contiguous note.
 
 ## Dynamic blocks
 
+> [!NOTE]
+> "Section" here is the list of immediate descendants of a given note; "full section"
+> the list of all descendants. 
+
 ### denote-fz-insert-section-dblock 
 
 Insert dblock with a regexp corresponding with the section of the
 current buffer's signature. A signature 2 would generate a dblock with
 the notes 2a 2b 2c, etc.
-
-> [!NOTE]
-> "Section" here is the list of immediate descendants of a given note; "full section"
-> the list of all descendants. 
 
 ### denote-fz-insert-full-section-dblock 
 
@@ -280,4 +280,5 @@ descendants of the upper level of the dired file at point.
 
 ### denote-fz-dired-top-level-notes
 
-Opens a dired buffer with all the top level notes.
+Opens a dired buffer with all the top level notes (all the notes that
+include only numbers).
