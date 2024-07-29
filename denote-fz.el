@@ -51,9 +51,16 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
   "Trim numbers from STR, from the right side."
   (string-trim str nil "[0-9]+"))
 
+(defun denote-fz-base (str)
+  "Return the base number of a Luhmann Id."
+  (string-match "[0-9]+" str)
+  (when (not (string-empty-p str ))
+    (match-string 0 str)))
+
 (defun denote-fz-get-last-char (str)
  "Return the last char of STR." 
   (substring str  -1 nil))
+
 
 ;; NOTE: this is just for reducing  the repetition of very similar let
 ;; expressions.
@@ -71,6 +78,8 @@ Used by `denote-fz-execute-find-command' to find related notes."
   (cl-multiple-value-bind (string-without-last-char last-char last-char-is-num)
       (denote-fz-split-last id)
     (cl-case variation
+      (base  (concat (denote-fz-base id)
+		     "[^0-9]+.*"))
       (parent  (if last-char-is-num
 		   (concat (denote-fz-trim-numbers id) "[^a-z]-")
 		 (concat id "[^0-9-]-")))
@@ -159,6 +168,7 @@ Return string."
 Return string."
   (cl-case variation
     ;; prefix variation returns all the files that have id as prefix.
+    (base (denote-fz-execute-find-command  (denote-fz-create-regex-string id 'base)))
     (prefix (denote-fz-execute-find-command (concat id "--")))
     (children (denote-fz-execute-find-command
 	       (denote-fz-create-regex-string id 'children)))
@@ -219,9 +229,19 @@ the signature until a valid one is found."
 
 ;;;; Denote defuns
 (defun denote-fz-find-note ()
-  "Visit a note using `completing-read.' and a pretty printed list."
+  "Visit a note using from a pretty printed list of candidates."
   (interactive)
   (call-interactively 'denote-fz-find-file))
+
+(defun denote-fz-find-note-in-full-section ()
+ "Find a note in the full section of the current file's signature." 
+  (interactive)
+  (let* ((file (buffer-file-name))
+	 (parent-dir (denote-fz-parent-directory file))
+	 (signature (denote-retrieve-filename-signature file))
+	 (result (denote-fz-find-file signature 'base)))
+	 (when result
+	   (find-file result))))
 
 (defun denote-fz-visit-by-signature (signature)
   (let ((note  (denote-fz-search-note
@@ -521,7 +541,7 @@ includes only signature title and keywords. FILE is a denote path or string."
 	      (propertize keywords-as-string 'face 'font-lock-note-face)))
     ,file)))
 
-(defun denote-fz-find-file (&optional regex)
+(defun denote-fz-find-file (&optional regex variation)
   "Find a denote note using  `completing-read'. The list of candidates
 is pretty  printed. REGEX is  a regular expression to  filter the
 search. Called interactively uses find-file otherwise returns the
@@ -530,7 +550,7 @@ filename."
   (let* ((vertico-sort-function 'identity);; Prevents sorting by history
 	 (vertico-buffer-mode t)
 	 (paths (mapcar #'denote-fz-pretty-format-filename
-			(split-string (denote-fz-search-files (or regex ".*")))))
+			(split-string (denote-fz-search-files (or regex ".*") variation))))
 	 (filename (cdr (assoc (completing-read "Note: " paths  nil t) paths))))
     (if (called-interactively-p 'interactive)
 	(find-file filename)
@@ -582,7 +602,7 @@ current buffer id. "
     (denote-fz-insert-dblock regexp)))
 
 ;;;; denote-fz-mode
-(defvar denote-fz-use-dired-mode t)
+(defvar denote-fz-replace-dired-mode t)
 
 (defvar denote-fz-mode-string
 " d-fz")
@@ -607,10 +627,11 @@ current buffer id. "
     (define-key map (kbd "i") #'denote-fz-insert-dwim)
     (define-key map (kbd "L") #'denote-fz-insert-at-level)
     (define-key map (kbd "l") #'denote-fz-insert-at-level-dwim)
-    (define-key map (kbd "u") #'denote-fz-unnumbered)
+    (define-key map (kbd "U") #'denote-fz-unnumbered)
    ;; Navigation
+    (define-key map (kbd "u") #'denote-fz-unnumbered-cycle)
     (define-key map (kbd "f") #'denote-fz-find-note)
-    (define-key map (kbd "t") #'denote-fz-unnumbered-cycle)
+    (define-key map (kbd "F") #'denote-fz-find-note-in-full-section)
     (define-key map (kbd "k") #'denote-fz-goto-previous)
     (define-key map (kbd "j") #'denote-fz-goto-next)
     (define-key map (kbd "n") #'denote-fz-goto-nested)
