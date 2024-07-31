@@ -330,7 +330,9 @@ current buffer. Return string."
 		      file-or-signature)))
     (denote-fz-string-variation signature variation)))
 
-(defun denote-fz-first-note()
+(defun denote-fz-new()
+  "Create a new top level note (the  folgezettel as a number); if there are
+none top level notes, it creates the first note, using \"1\" as the signature."
   "Create the first folgezettel note, with 1 as the signature."
   (interactive)
   (denote-fz-create-note "1"))
@@ -379,7 +381,8 @@ note of the target's signature id incremented by one."
 
 ;;;; Zettel Editing 
 (defun denote-fz-add-signature (&optional file variation)
-  (interactive)
+  "Add a signature to an unnumbered note FILE or the current's buffer unnombered note.
+ A prompt asks for a target note and VARIATION describes which new signature is created from the target note."
   (let* ((file  (buffer-file-name))
 	 (file-type (denote-filetype-heuristics file))
 	 (title (denote-retrieve-title-value file file-type))
@@ -392,7 +395,15 @@ note of the target's signature id incremented by one."
 	(denote-rename-file file title keywords signature)
       (message "Not an unnumbered note."))))
 
+(defun denote-fz-add-signature-nested (&optional file)
+ "Add a nested signature to FILE or the current buffer's unnumbered note. A prompt
+asks for the target note on which to base the signature."
+  (interactive)
+  (denote-fz-add-signature file 'child))
+
 (defun denote-fz-add-signature-at-level (&optional file)
+  "Add a  signature at  level to  FILE or the current  buffer's unnumbered  note. A
+prompt asks for the target note on which to base the signature."
   (interactive)
   (denote-fz-add-signature file 'sibling)) 
 
@@ -661,11 +672,12 @@ current buffer id. "
 
 (defvar denote-fz-command-map
   (let ((map (make-sparse-keymap)))
-   ;; Note creation 
+   ;; Note creation
     (define-key map (kbd "I") #'denote-fz-insert)
     (define-key map (kbd "i") #'denote-fz-insert-dwim)
     (define-key map (kbd "L") #'denote-fz-insert-at-level)
     (define-key map (kbd "l") #'denote-fz-insert-at-level-dwim)
+    (define-key map (kbd "o") #'denote-fz-new)
     (define-key map (kbd "U") #'denote-fz-unnumbered)
     (define-key map (kbd "S") #'denote-fz-select-command)
    ;; Navigation
@@ -709,7 +721,7 @@ current buffer id. "
 
 ;;;###autoload
 (define-minor-mode denote-fz-mode
-  "Provides functions for creating and navigating folgezettel notes." 
+  "Provide functions for creating and navigating folgezettel notes." 
   :init-value nil
   :keymap denote-fz-mode-map
   :lighter denote-fz-mode-string
