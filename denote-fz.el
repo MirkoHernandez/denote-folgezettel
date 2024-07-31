@@ -5,7 +5,7 @@
 ;; Author: Mirko Hernandez <mirkoh@fastmail.com>
 ;; Maintainer: Mirko Hernandez <mirkoh@fastmail.com>>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Keywords: denote notes zettelkasten folgezettel
 ;; URL: https://github.com/MirkoHernandez/denote-fz
 ;; Package-Requires: ((emacs "27.1") (denote "2.0.0"))
@@ -31,6 +31,12 @@
 
 (require 'denote)
 (require 'denote-rename-buffer)
+
+
+(define-obsolete-function-alias
+  'denote-fz-first-note
+  'denote-fz-new
+  "0.2.0")
 
 (defvar denote-fz-create-function 'denote-fz-create
   "Function used to create notes with a a folgezettel signature.
