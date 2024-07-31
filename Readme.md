@@ -83,6 +83,7 @@ For convenience most of the navigation commands are added to the
 | `denote-fz-insert-dwim`                | <kbd>i</kbd> |
 | `denote-fz-insert-at-level`            | <kbd>L</kbd> |
 | `denote-fz-insert-at-level-dwim`       | <kbd>l</kbd> |
+| `denote-fz-new`                        | <kbd>o</kbd> |
 | `denote-fz-unnumbered`                 | <kbd>U</kbd> |
 | `denote-fz-select-command`             | <kbd>S</kbd> |
 | `denote-fz-find-note`                  | <kbd>f</kbd> |
@@ -143,7 +144,7 @@ citekey.
 > denoting a specific relationship between the notes.
 
 ### Note creation
-* [denote-fz-first-note](#denote-fz-first-note)
+* [denote-fz-new](#denote-fz-new)
 * [denote-fz-unnumbered](#denote-fz-unnumbered)
 * [denote-fz-insert](#denote-fz-insert)
 * [denote-fz-insert-at-level](#denote-fz-insert-at-level)
