@@ -184,39 +184,40 @@ citekey.
 
 ## Note creation
 
-### denote-fz-first-note
+### denote-fz-new
 
-Creates a note with signature "1".
+Create a new top level note (its folgezettel will always be a number); if there are
+none top level notes, it creates the first note, using "1" as the signature.
 
 ### denote-fz-unnumbered
 
-Creates a note with signature "un".
+Create a note with a signature "un".
 
 ### denote-fz-insert
 
-Prompts for a target note and creates a nested note based in the
-target note's signature. A target note with a signature 2a4 would
-create the note 2a4a, if that note is already created it keeps looking
-for a valid signature for note creation.
+Prompt for a target note and create a nested note based in the target
+note's signature. A target note with a signature 2a4 would create the
+note 2a4a, if that note is already created it keeps looking for a
+valid signature for note creation.
 
 ### denote-fz-insert-at-level
 
-Prompts for a target note and creates a note at level with the target
+Prompt for a target note and create a note at level with the target
 note's signature. A target note with a signature 2a4 would create a
 note 2a5, if that note is already created it keeps looking for a valid
 signature for note creation.
 
 ### denote-fz-insert-dwim
 
-Same as denote-fz-insert but uses the current buffer's signature as
+Same as `denote-fz-insert` but uses the current buffer's signature as
 the target.
 
 ### denote-fz-insert-at-level-dwim 
 
-Same as denote-fz-insert-at-level but uses the current buffer's
+Same as `denote-fz-insert-at-level` but uses the current buffer's
 signature as the target.
 
-### denote-fz-add-signature
+### denote-fz-add-signature-nested
 
 Add a signature to an unnumbered note selecting a target note and
 creating a nested note using its signature.
@@ -228,7 +229,7 @@ creating a note at level using its signature.
 
 ### denote-fz-select-command
 
-Changes the note creation function to one from the list
+Change the note creation function to one from the list
 `denote-fz-commands`.
 
 ## Navigation
@@ -275,7 +276,6 @@ Example: Using it on a 2a4c signature would find the 2a4b signature.
 Like `denote-fz-goto-next` but it moves to the first note of the
 sequence if it reaches the end.
 
-
 ### denote-fz-follow-through
 
 Find the next contiguous note.
@@ -306,20 +306,20 @@ the notes 2a 2a1 2a2a2 2b 2b1a, etc.
 
 ### denote-fz-dired-mode
 
-Opens a dired buffer with the notes sorted by the folgezettel
+Open a dired buffer with the notes sorted by the folgezettel
 id.
 
 ### denote-fz-dired-section
 
-Opens a dired buffer with the notes corresponding with all the
+Open a dired buffer with the notes corresponding with all the
 descendants of the dired file at point.
 
 ### denote-fz-dired-section-up
 
-Opens a dired buffer with the notes corresponding with all the
+Open a dired buffer with the notes corresponding with all the
 descendants of the upper level of the dired file at point.
 
 ### denote-fz-dired-top-level-notes
 
-Opens a dired buffer with all the top level notes (all the notes that
+Open a dired buffer with all the top level notes (all the notes that
 include only numbers).
