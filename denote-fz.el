@@ -57,6 +57,67 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
   " | sed  's/--/=@/3' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
   "String for setting `ls-option' for `find-dired' command")
 
+;;;; Helpers - Sort
+(defun denote-fz-folgezettel<  (a b)
+  "Return non-nil if string A has a lower folgezettel value than string B." 
+  (let* ((len-a (length a))
+	 (len-b (length b))
+	 (i 0)
+	 (shortest (min  len-b len-a))
+	 (both-numbers t))
+    (while (< i  shortest)
+      (let ((char-a (aref a i))
+	    (char-b (aref b i)))
+	;; both numbers
+	(cond ((and (< char-a 58)
+		    (< char-b 58))
+	       ;; equal
+	       (if (= char-a char-b)
+		   (unless (equal result "=")
+		     (when (= i 0)
+		       (setq result "=")))
+		 (if (equal result "=")
+		     (setq result (< char-a char-b))
+		   (when (or (= i 0) (not both-numbers))
+		     (setq result (< char-a char-b)))))
+	       (setq both-numbers t))
+	      ;; only a is a number
+	      ((< char-a 58)
+	       (when both-numbers
+		 (setq i shortest)
+		 (setq result nil))
+	       (setq both-numbers nil))
+	      ;; only b is a number
+	      ((< char-b 58)
+	       (when both-numbers
+		 (setq i shortest)
+		 (setq result t))
+	       (setq both-numbers nil))
+	      ;; both letters
+	      (t
+	       (if (or (equal result "=" ) (not both-numbers))
+		   (setq result (< char-a char-b))
+		 (setq i shortest))
+	       (setq both-numbers nil))))
+      ;; determine which longer string has more digits
+      (when (and (= i (1- shortest))
+		 both-numbers)
+	(cond ((and (< len-a len-b)
+		    (< (aref b (1+ i )) 58))
+	       (setq result t))
+	      ((and (< len-b len-a)
+		    (< (aref a (1+ i )) 58))
+	       (setq result nil))))
+      (setq i (1+ i)))
+    (if (equal  result "=")
+	nil
+      result)))
+
+(defun denote-fz-note< (a b)
+  "Return non-nil if note A has a lower folgezettel value in the signature than note B." 
+  (denote-fz-folgezettel< (denote-retrieve-filename-signature a)
+			  (denote-retrieve-filename-signature b)))
+
 ;;;; Helpers - Strings
 (defun denote-fz-trim-chars (str)
   "Trim letters from STR, from the right side."
