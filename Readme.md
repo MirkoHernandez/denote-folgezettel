@@ -12,8 +12,6 @@ primary motivation of denote-fz.
 
 Denote 2.0.0 or above is required.
 
-For now *sed* and *awk* are also required for sorting dired buffers.
-
 # Installation
 
 ## Manual
