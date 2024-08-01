@@ -147,7 +147,7 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	     (string-match "[0-9]" (denote-fz-get-last-char str))))
 
 ;; NOTE: full-section is the list of notes including the selected note
-;; and all its descendants.
+;; and all its descendants, section includes only the immediate descendants.
 (defun denote-fz-create-regex-string (id variation)
   "Create a regex for searching children,parent, section, full-section.
 Used by `denote-fz-execute-find-command' to find related notes."
@@ -239,25 +239,35 @@ Return string."
   (shell-command-to-string
    (concat "find * -regex " "'\..*==" regex ".*'" denote-fz-sort-command)))
 
+(defun denote-fz-find-sorted-files (regex &optional no-sort)
+  "Find a list  of notes matching REGEX.
+ The list  is sorted by folgezettel unless NO-SORT is non-nil."
+  (require 'find-lisp)
+  (if no-sort
+      (find-lisp-find-files  default-directory (concat   regex  ".*"))
+    (sort (find-lisp-find-files  default-directory (concat  regex  ".*"))
+	  'denote-fz-note<)))
+
 (defun denote-fz-search-files (id &optional variation)
   "Execute the find command to find files matching the Luhmann ID modified by VARIATION.
 Return string."
   (cl-case variation
     ;; prefix variation returns all the files that have id as prefix.
-    (base (denote-fz-execute-find-command  (denote-fz-create-regex-string id 'base)))
-    (prefix (denote-fz-execute-find-command (concat id "--")))
-    (children (denote-fz-execute-find-command
+    (base (denote-fz-find-sorted-files  (denote-fz-create-regex-string id 'base)))
+    (prefix (denote-fz-find-sorted-files (concat id "--")))
+    (children (denote-fz-find-sorted-files
 	       (denote-fz-create-regex-string id 'children)))
     ;; like children but it includes the parent note.
-    (section (denote-fz-execute-find-command
+    (section (denote-fz-find-sorted-files
 	      (denote-fz-create-regex-string id 'section)))
     (siblings
      (denote-fz-search-files (denote-fz-string-variation id 'parent) 'children))
     (t
-     (denote-fz-execute-find-command (concat id "--")))))
+     (denote-fz-find-sorted-files id))))
 
 (defun denote-fz-search-note (id &optional variation)
-  (let ((note  (string-trim (denote-fz-search-files id variation) nil "\n") ))
+  (let* ((notes  (denote-fz-search-files id variation))
+	 (note  (and notes (car notes))))
     (if (string-empty-p note)
 	nil
       note)))
@@ -410,9 +420,9 @@ none top level notes, it creates the first note, using \"1\" as the signature."
   (denote-fz-create-note "un" t))
 
 (defun denote-fz-unnumbered-cycle ()
- "Cycle between unnumbered notes." 
+  "Cycle between unnumbered notes." 
   (interactive)
-  (let* ((unnumbered-notes (split-string (denote-fz-search-files "un")))
+  (let* ((unnumbered-notes (denote-fz-search-files "un"))
 	 (unnumbered-array  (cl-map 'vector 'identity  unnumbered-notes))
 	 (array-length  (length unnumbered-array))
 	 (current-position (cl-position  (file-name-nondirectory (buffer-file-name)) unnumbered-array :test 'equal))
@@ -654,7 +664,7 @@ includes only signature title and keywords. FILE is a denote path or string."
 	   (keywords-as-string (mapconcat 'identity keywords ", ")))
       (format "%-6s %s %s"
 	      (propertize (or signature "") 'face 'font-lock-warning-face)
-	      (propertize title 'face 'font-lock-doc-face)
+	      (propertize (or title "") 'face 'font-lock-doc-face)
 	      (propertize keywords-as-string 'face 'font-lock-note-face)))
     ,file)))
 
@@ -667,7 +677,7 @@ filename."
   (let* ((vertico-sort-function 'identity);; Prevents sorting by history
 	 (vertico-buffer-mode t)
 	 (paths (mapcar #'denote-fz-pretty-format-filename
-			(split-string (denote-fz-search-files (or regex ".*") variation))))
+			(denote-fz-search-files (or regex ".*") variation)))
 	 (filename (cdr (assoc (completing-read "Note: " paths  nil t) paths))))
     (if (called-interactively-p 'interactive)
 	(find-file filename)
