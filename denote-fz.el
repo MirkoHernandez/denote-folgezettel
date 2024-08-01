@@ -67,7 +67,8 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	 (len-b (length b))
 	 (i 0)
 	 (shortest (min  len-b len-a))
-	 (both-numbers t))
+	 (both-numbers t)
+	 (result))
     (while (< i  shortest)
       (let ((char-a (aref a i))
 	    (char-b (aref b i)))
@@ -233,7 +234,7 @@ VARIATION indicates how to modify the id."
 		  (concat (denote-fz-trim-numbers str) "1")
 		(concat (denote-fz-trim-chars str) "a")))))))
 
-;;; Find File String
+;;; Helpers - Find Files
 ;; Functions that find the corresponding  denote files by using the signature
 ;; or a regex as input.
 (defun denote-fz-execute-find-command (regex)
@@ -247,8 +248,8 @@ Return string."
  The list  is sorted by folgezettel unless NO-SORT is non-nil."
   (require 'find-lisp)
   (if no-sort
-      (find-lisp-find-files  default-directory (concat   (or regex "")  ".*"))
-    (sort (find-lisp-find-files  default-directory (concat  (or regex "")  ".*"))
+      (find-lisp-find-files  default-directory (concat    ".*==" (or regex "")  ".*"))
+    (sort (find-lisp-find-files  default-directory (concat  ".*==" (or regex "")  ".*"))
 	  'denote-fz-note<)))
 
 (defun denote-fz-search-files (id &optional variation)
@@ -391,7 +392,7 @@ using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
   "Creates a  note using SIGNATURE.If  the note already  exists keep
 incrementing the signature until it finds a valid one for note creation.
 If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
-    (if (not (denote-fz-search-note signature))
+    (if (not (denote-fz-search-note signature 'prefix))
 	(funcall denote-fz-create-function signature)
       (if (not no-auto-increment)
 	  (denote-fz-create-note (denote-fz-string-increment signature))
