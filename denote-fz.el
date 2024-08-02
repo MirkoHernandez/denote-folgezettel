@@ -5,7 +5,7 @@
 ;; Author: Mirko Hernandez <mirkoh@fastmail.com>
 ;; Maintainer: Mirko Hernandez <mirkoh@fastmail.com>>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Keywords: denote notes zettelkasten folgezettel
 ;; URL: https://github.com/MirkoHernandez/denote-fz
 ;; Package-Requires: ((emacs "27.1") (denote "2.0.0"))
