@@ -321,7 +321,8 @@ the signature until a valid one is found."
 (defun denote-fz-find-note ()
   "Visit a note using from a pretty printed list of candidates."
   (interactive)
-  (call-interactively 'denote-fz-find-file))
+  (let* ((vertico-sort-function 'identity));; Prevents sorting by history
+    (call-interactively 'denote-fz-find-file)))
 
 (defun denote-fz-find-note-in-full-section ()
  "Find a note in the full section of the current file's signature." 
@@ -616,7 +617,7 @@ have a signature."
   (require 'find-lisp)
   (let ((files (mapcar 'file-name-nondirectory
 		       (denote-fz-find-sorted-files  regex))))
-    (dired (cons default-directory files) )))
+    (dired (cons default-directory files))))
 
 ;;;; Dired Commands
 (defun denote-fz-dired-signature-buffer ()
@@ -683,13 +684,12 @@ search. Called interactively uses find-file otherwise returns the
 filename."
   (interactive)
   (let* ((vertico-sort-function 'identity);; Prevents sorting by history
-	 (vertico-buffer-mode t)
 	 (paths (mapcar #'denote-fz-pretty-format-filename
 			(denote-fz-search-files (or regex ".*") variation)))
 	 (filename (cdr (assoc (completing-read "Note: " paths  nil t) paths))))
     (if (called-interactively-p 'interactive)
 	(find-file filename)
-      ;; For programatic use, just return the filename.
+      ;; For programmatic use, just return the filename.
       filename)))
 
 ;;;; Dynamic Blocks
