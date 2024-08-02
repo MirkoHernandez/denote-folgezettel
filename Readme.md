@@ -53,7 +53,7 @@ To enable the mode in a zettelkasten silo (maybe as a subdirectory of
 a denote silo) you can add the following variable in the `.dir-locals.el` file.
 
 ``` emacs-lisp
-((nil . ((denote-fz-mode . t))))
+((nil . ((eval . (denote-fz-mode  t))))
 ```
 
 If the directory itself is set as a silo, `.dir-locals.el`  should look similar to
@@ -61,7 +61,7 @@ this.
 
 ``` emacs-lisp
 ((nil . ((denote-directory . default-directory)
-	    (denote-fz-mode . t))))
+	    (eval . (denote-fz-mode t))))
 ```
 
 ## Keybinding Configuration
