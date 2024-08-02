@@ -816,11 +816,11 @@ current buffer id. "
           (advice-add 'dired-jump :override #'denote-fz-dired-mode))
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback)
-	(run-mode-hooks 'denote-fz-mode-hook))	
+	(run-hooks 'denote-fz-mode-hook))	
     (progn
       (advice-remove 'dired-jump #'denote-fz-dired-mode)
       (setq denote-rename-buffer-format  "%t"))
-      (denote-rename-buffer-rename-function-or-fallback)))
+    (denote-rename-buffer-rename-function-or-fallback)))
 
 (defvar denote-fz-dired-mode-map
   (let ((map (make-sparse-keymap)))
