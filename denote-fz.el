@@ -106,9 +106,10 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
       ;; determine which longer string has more digits
       (when (and (= i (1- shortest))
 		 both-numbers)
-	(cond ((and (< len-a len-b)
-		    (< (aref b (1+ i )) 58))
-	       (setq result t))
+	(cond ((< len-a len-b)
+	       (when (or (< (aref b (1+ i )) 58)
+			(equal result "="))
+		   (setq result t)))
 	      ((and (< len-b len-a)
 		    (< (aref a (1+ i )) 58))
 	       (setq result nil))))
