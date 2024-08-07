@@ -782,7 +782,6 @@ current buffer id. "
     (define-key map (kbd ".") #'denote-fz-follow-through)
     (define-key map (kbd ",") #'denote-fz-backward-follow-through)
     ;; Dired
-    (define-key map (kbd "d") #'denote-fz-dired-mode)
     (define-key map (kbd "m") #'denote-fz-dired-top-level-notes)
     (define-key map (kbd "a") #'denote-fz-dired-signature-buffer)
     (define-key map (kbd "s") #'denote-fz-dired-section)

@@ -94,7 +94,6 @@ For convenience most of the navigation commands are added to the
 | `denote-fz-cycle`                      | <kbd>c</kbd> |
 | `denote-fz-follow-through`             | <kbd>.</kbd> |
 | `denote-fz-backward-follow-through`    | <kbd>,</kbd> |
-| `denote-fz-dired-mode`                 | <kbd>d</kbd> |
 | `denote-fz-dired-top-level-notes`      | <kbd>m</kbd> |
 | `denote-fz-dired-signature-buffer`     | <kbd>a</kbd> |
 | `denote-fz-dired-section`              | <kbd>s</kbd> |
@@ -190,7 +189,7 @@ none top level notes, it creates the first note, using "1" as the signature.
 
 ### denote-fz-unnumbered
 
-Create a note with a signature "un".
+Create a note with a signature named "unnumbered".
 
 ### denote-fz-insert
 
@@ -303,7 +302,7 @@ the notes 2a 2a1 2a2a2 2b 2b1a, etc.
 
 ## Dired integration
 
-### denote-fz-dired-mode
+### denote-fz-dired-signature-buffer
 
 Open a dired buffer with the notes sorted by the folgezettel
 id.
