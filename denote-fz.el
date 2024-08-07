@@ -426,12 +426,12 @@ none top level notes, it creates the first note, using \"1\" as the signature."
 (defun denote-fz-unnumbered ()
  "Create an unnumbered note."
   (interactive)
-  (denote-fz-create-note "un" t))
+  (denote-fz-create-note "unnumbered" t))
 
 (defun denote-fz-unnumbered-cycle ()
   "Cycle between unnumbered notes."
   (interactive)
-  (let* ((unnumbered-notes (denote-fz-search-files "un"))
+  (let* ((unnumbered-notes (denote-fz-search-files "unnumbered"))
 	 (unnumbered-array  (cl-map 'vector 'identity  unnumbered-notes))
 	 (array-length  (length unnumbered-array))
 	 (current-position (cl-position  (file-name-nondirectory (buffer-file-name)) unnumbered-array :test 'equal))
@@ -477,7 +477,7 @@ note of the target's signature id incremented by one."
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (target (denote-fz-find-file))
 	 (signature  (denote-fz-find-valid-signature (denote-fz-derived-signature (or variation 'child) target))))
-    (if (equal "un" current-signature)
+    (if (equal "unnumbered" current-signature)
 	(denote-rename-file file title keywords signature)
       (message "Not an unnumbered note."))))
 
