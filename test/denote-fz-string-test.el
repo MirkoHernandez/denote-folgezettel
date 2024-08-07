@@ -35,14 +35,17 @@
   (should (denote-fz-folgezettel< "5a" "5b"))
   (should (denote-fz-folgezettel< "5ab" "5ac"))
   (should (denote-fz-folgezettel< "5a2" "5b"))
+  (should (denote-fz-folgezettel< "3a" "3a1"))
   
   (should-not (denote-fz-folgezettel< "1" "1"))
   (should-not (denote-fz-folgezettel< "11" "11"))
   (should-not (denote-fz-folgezettel< "11a" "11"))
+  (should-not (denote-fz-folgezettel< "3a1" "3a"))
   (should-not (denote-fz-folgezettel< "2za" "2a2"))
   (should-not (denote-fz-folgezettel< "9" "8"))
   (should-not (denote-fz-folgezettel< "2aa2" "2a2"))
   (should-not (denote-fz-folgezettel< "2a22d" "2a22c")))
+
 
 (ert-deftest denote-fz-test-string-increment ()
   (should (equal (denote-fz-string-increment "9") "10"))
