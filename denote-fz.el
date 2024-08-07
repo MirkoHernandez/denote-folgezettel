@@ -626,9 +626,11 @@ have a signature."
 ;;;; Dired Commands
 (defun denote-fz-dired-signature-buffer ()
   "Create  a dired  buffer displaying  all the  notes sorted  by the
-signature id."
+signature id. With prefix argument (e.g., C-u), call `dired-jump' instead."
   (interactive)
-  (funcall denote-fz-dired-function))
+  (if current-prefix-arg
+      (funcall (advice--cd*r (symbol-function #'dired-jump))) 
+    (funcall denote-fz-dired-function)))
 
 (defun denote-fz-dired-top-level-notes ()
   "Create a dired buffer displaying the top level notes."
@@ -817,12 +819,12 @@ current buffer id. "
       (progn
 	(setq denote-rename-buffer-format  "%s %t")
 	(when denote-fz-replace-dired-mode
-          (advice-add 'dired-jump :override #'denote-fz-dired-mode))
+          (advice-add 'dired-jump :override #'denote-fz-dired-signature-buffer))
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback)
 	(run-hooks 'denote-fz-mode-hook))	
     (progn
-      (advice-remove 'dired-jump #'denote-fz-dired-mode)
+      (advice-remove 'dired-jump #'denote-fz-dired-signature-buffer)
       (setq denote-rename-buffer-format  "%t"))
     (denote-rename-buffer-rename-function-or-fallback)))
 
@@ -840,12 +842,7 @@ narrowing functions."
   :group 'denote-fz-dired
   :keymap denote-fz-dired-mode-map
   :lighter denote-fz-dired-mode-string
-  (if denote-fz-mode
-      (progn
-	(unless (eq major-mode 'dired-mode)
-	  (denote-fz-dired-signature-buffer)))
-    (progn
-      (call-interactively (advice--cd*r (symbol-function #'dired-jump))))))
+  )
 
 (provide 'denote-fz)
 ;;; denote-fz.el ends here
