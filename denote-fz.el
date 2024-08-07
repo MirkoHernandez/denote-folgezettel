@@ -100,19 +100,22 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	      ;; both letters
 	      (t
 	       (if (or (equal result "=" ) (not both-numbers))
-		   (setq result (< char-a char-b))
+		   (unless (= char-a char-b)
+		     (setq result (< char-a char-b)))
 		 (setq i shortest))
 	       (setq both-numbers nil))))
       ;; determine which longer string has more digits
-      (when (and (= i (1- shortest))
-		 both-numbers)
-	(cond ((< len-a len-b)
-	       (when (or (< (aref b (1+ i )) 58)
-			(equal result "="))
-		   (setq result t)))
-	      ((and (< len-b len-a)
-		    (< (aref a (1+ i )) 58))
-	       (setq result nil))))
+      (when (= i (1- shortest))
+	(if both-numbers
+	    (cond ((< len-a len-b)
+		   (when (or (< (aref b (1+ i )) 58)
+			     (equal result "="))
+		     (setq result t)))
+		  ((and (< len-b len-a)
+			(< (aref a (1+ i )) 58))
+		   (setq result nil)))
+	  (if (equal result "=")
+	      (setq result (< len-a len-b)))))
       (setq i (1+ i)))
     (if (equal  result "=")
 	nil
