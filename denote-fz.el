@@ -401,7 +401,7 @@ If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
 	(funcall denote-fz-create-function signature)
       (if (not no-auto-increment)
 	  (denote-fz-create-note (denote-fz-string-increment signature))
-	(if (equal signature "un")
+	(if (equal signature "unnumbered")
 	    (funcall denote-fz-create-function signature)
 	  (message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face))))))
 
@@ -467,7 +467,8 @@ note of the target's signature id incremented by one."
 
 ;;;; Zettel Editing
 (defun denote-fz-add-signature (&optional file variation)
-  "Add a signature to an unnumbered note FILE or the current's buffer unnombered note.
+  (interactive) 
+  "Add a signature to  FILE or the current's buffer unnumbered note.
  A prompt asks for a target note and VARIATION describes which new signature is created from the target note."
   (let* ((file  (buffer-file-name))
 	 (file-type (denote-filetype-heuristics file))
@@ -476,7 +477,11 @@ note of the target's signature id incremented by one."
 	 (current-signature  (denote-retrieve-filename-signature file))
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (target (denote-fz-find-file))
-	 (signature  (denote-fz-find-valid-signature (denote-fz-derived-signature (or variation 'child) target))))
+	 (signature  (if variation
+			 (denote-fz-find-valid-signature (denote-fz-derived-signature variation target))
+		       (completing-read "Signature:"
+					(list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
+					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target)))))))
     (if (equal "unnumbered" current-signature)
 	(denote-rename-file file title keywords signature)
       (message "Not an unnumbered note."))))

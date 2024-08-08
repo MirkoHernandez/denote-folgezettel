@@ -148,6 +148,7 @@ citekey.
 * [denote-fz-insert-dwim](#denote-fz-insert-dwim)
 * [denote-fz-insert-at-level-dwim](#denote-fz-insert-at-level-dwim)
 * [denote-fz-add-signature](#denote-fz-add-signature)
+* [denote-fz-add-signature-nested](#denote-fz-add-signature-nested)
 * [denote-fz-add-signature-at-level](#denote-fz-add-signature-at-level)
 * [denote-fz-select-command](#denote-fz-select-command)
 
@@ -214,6 +215,11 @@ the target.
 
 Same as `denote-fz-insert-at-level` but uses the current buffer's
 signature as the target.
+
+### denote-fz-add-signature
+
+Add a signature to an unnumbered note selecting a target note and
+prompting which kind of signature to add.
 
 ### denote-fz-add-signature-nested
 
