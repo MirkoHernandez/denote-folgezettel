@@ -371,7 +371,7 @@ using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
   (interactive)
   (let ((denote-user-enforced-denote-directory default-directory))
     (denote (and (member 'title denote-prompts)
-		 (denote-title-prompt))
+		 (denote-title-prompt nil (format "[%s] New file Title" signature)))
 	    (and (member 'keywords denote-prompts)
 		 (denote-keywords-prompt))
 	    ;; this is the filetype value
