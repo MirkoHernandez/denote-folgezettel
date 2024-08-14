@@ -633,7 +633,7 @@ have a signature."
   "Create  a dired  buffer displaying  all the  notes sorted  by the
 signature id. With prefix argument (e.g., C-u), call `dired-jump' instead."
   (interactive)
-  (if current-prefix-arg
+  (if (or current-prefix-arg (not denote-fz-mode))
       (funcall (advice--cd*r (symbol-function #'dired-jump))) 
     (funcall denote-fz-dired-function)))
 
