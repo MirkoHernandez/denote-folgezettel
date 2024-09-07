@@ -754,6 +754,20 @@ current buffer id. "
 	 (regexp (concat parent-dir ".*==" full-section)))
     (denote-fz-insert-dblock regexp)))
 
+(defun denote-fz-insert-current-section-dblock ()
+  "Insert dblock  with a regexp  corresponding with  the notes at  the same
+level of the current buffer id."
+  (interactive)
+  (let* ((file (buffer-file-name))
+	 (parent-dir (denote-fz-parent-directory file))
+	 (signature (denote-retrieve-filename-signature file))
+	 (full-section (if (not (equal signature ""))
+			   (denote-fz-create-regex-string (denote-fz-string-variation signature 'parent)
+							  'section)
+			 "[0-9]+--"))
+	 (regexp (concat parent-dir ".*==" full-section)))
+    (denote-fz-insert-dblock regexp)))
+
 ;;;; denote-fz-mode
 (defvar denote-fz-replace-dired-mode t)
 
