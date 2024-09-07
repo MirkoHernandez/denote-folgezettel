@@ -397,17 +397,19 @@ using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
 	 (completing-read
 	  "Command: " denote-fz-commands ))))
 
-(defun denote-fz-create-note (signature &optional no-auto-increment)
+(defun denote-fz-create-note (file-or-signature &optional no-auto-increment)
   "Creates a  note using SIGNATURE.If  the note already  exists keep
 incrementing the signature until it finds a valid one for note creation.
 If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
-    (if (not (denote-fz-search-note signature 'prefix))
-	(funcall denote-fz-create-function signature)
-      (if (not no-auto-increment)
-	  (denote-fz-create-note (denote-fz-string-increment signature))
-	(if (equal signature "unnumbered")
-	    (funcall denote-fz-create-function signature)
-	  (message "Signature %s already exists" (propertize signature 'face  'font-lock-warning-face))))))
+  (if (not (denote-fz-search-note file-or-signature 'prefix))
+      (funcall denote-fz-create-function file-or-signature)
+    (if (not no-auto-increment)
+	(if (equal file-or-signature "unnumbered")
+	    (funcall denote-fz-create-function "unnumbered")
+	  (denote-fz-create-note (denote-fz-string-increment file-or-signature)))
+      (if (equal file-or-signature "unnumbered")
+	  (funcall denote-fz-create-function file-or-signature)
+	(message "Signature %s already exists" (propertize file-or-signature 'face  'font-lock-warning-face))))))
 
 (defun denote-fz-derived-signature (&optional variation file-or-signature)
   "Retrieves the current buffer's signature and creates a variation of that signature.
@@ -418,7 +420,9 @@ current buffer. Return string."
 	 (signature (if (denote-file-is-note-p file-or-signature)
 			(denote-retrieve-filename-signature file-or-signature)
 		      file-or-signature)))
-    (denote-fz-string-variation signature variation)))
+    (if (equal signature "unnumbered")
+	"unnumbered"
+      (denote-fz-string-variation signature variation))))
 
 (defun denote-fz-new()
   "Create a new top level note (the  folgezettel as a number); if there are
