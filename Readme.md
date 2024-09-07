@@ -72,9 +72,6 @@ The `denote-fz-command-map` includes all the denote-fz bindings.
 (define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
 ```
 
-For convenience most of the navigation commands are added to the
-`repeat-map`.
-
 | command                                | binding      |
 |:---------------------------------------|:------------:|
 | `denote-fz-insert`                     | <kbd>I</kbd> |

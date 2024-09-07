@@ -818,15 +818,6 @@ level of the current buffer id."
     map)
   "Keymap for denote-fz commands after `denote-fz-keymap-prefix'.")
 
-(dolist (cmd '(denote-fz-goto-nested
-	       denote-fz-goto-upper-level
-	       denote-fz-goto-previous
-	       denote-fz-goto-next
-	       denote-fz-unnumbered-cycle
-	       denote-fz-follow-through
-	       denote-fz-backward-follow-through))
-  (put cmd 'repeat-map 'denote-fz-command-map))
-
 (defvar denote-fz-mode-map
   (let ((map (make-sparse-keymap)))
     (when denote-fz-keymap-prefix
