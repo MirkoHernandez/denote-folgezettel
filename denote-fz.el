@@ -60,7 +60,11 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
   " | sed  's/--/=@/3' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
   "String for setting `ls-option' for `find-dired' command")
 
+
 ;;;; Helpers - Sort
+;; NOTE:  This method  of  sorting  avoids using  regexp  so that  the
+;; algorithm  can be  ported to  other languages,  possibly without  a
+;; regexp library. And also to try out emacs lisp primitives.
 (defun denote-fz-folgezettel<  (a b)
   "Return non-nil if string A has a lower folgezettel value than string B."
   (let* ((len-a (length a))
@@ -163,19 +167,19 @@ Used by `denote-fz-execute-find-command' to find related notes."
       (denote-fz-split-last id)
     (cl-case variation
       (base  (concat (denote-fz-base id)
-		     "[^0-9]+.*"))
+		     "[^0-9-]+.*"))
       (parent  (if last-char-is-num
-		   (concat (denote-fz-trim-numbers id) "[^a-z]-")
+		   (concat (denote-fz-trim-numbers id) "[^a-z-]-")
 		 (concat id "[^0-9-]-")))
       (children  (if last-char-is-num
 		     (concat id "[^0-9-]+")
 		   (concat id "[^a-z-]+")))
       (full-section  (if last-char-is-num
-			 (concat id "[^0-9]+[^a-z]*.*")
-		       (concat id "[^a-z]+[^0-9]*.*")))
+			 (concat id "[^0-9-]+[^a-z]*.*")
+		       (concat id "[^a-z-]+[^0-9]*.*")))
       (section  (if last-char-is-num
-		    (concat id "[^0-9]+--.*")
-		  (concat id "[^a-z]+--.*"))))))
+		    (concat id "[^0-9-]+--.*")
+		  (concat id "[^a-z-]+--.*"))))))
 
 ;;;; Luhmann Id manipulation
 (defun denote-fz-string-increment (str)
