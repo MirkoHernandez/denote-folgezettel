@@ -417,12 +417,12 @@ VARIATION    specifies    how    to   modify    the    signature,
 FILE-OR_SIGNATURE  a file  or  signature to  use  instead of  the
 current buffer. Return string."
   (let* ((file-or-signature (or file-or-signature (buffer-file-name)))
-	 (signature (if (denote-file-is-note-p file-or-signature)
-			(denote-retrieve-filename-signature file-or-signature)
-		      file-or-signature)))
+	 (signature (denote-retrieve-filename-signature file-or-signature)))
     (if (equal signature "unnumbered")
 	"unnumbered"
-      (denote-fz-string-variation signature variation))))
+      (if signature
+	  (denote-fz-string-variation signature variation)
+	(message  "No signature found for %s" file-or-signature)))))
 
 (defun denote-fz-new()
   "Create a new top level note (the  folgezettel as a number); if there are
