@@ -682,6 +682,23 @@ current-buffer."
 			"--.*")))
     (funcall denote-fz-dired-function regex)))
 
+(defun denote-fz-rename-unnumbered ()
+  "Rename Dired marked files' signature to unnumbered."
+  (interactive)
+  (let ((denote--used-ids)
+	(denote-prompts nil)
+        (denote-rename-confirmations nil))
+    (if-let ((marks (dired-get-marked-files)))
+        (progn
+          (unless (seq-every-p #'denote-file-has-identifier-p marks)
+            (setq denote--used-ids (denote--get-all-used-ids)))
+          (dolist (file marks)
+            (pcase-let ((`(,title ,keywords ,signature ,date)
+                         (denote--rename-get-file-info-from-prompts-or-existing file)))
+              (denote--rename-file file title keywords "unnumbered" date)))
+          (denote-update-dired-buffers))
+      (user-error "No marked files; aborting"))))
+
 ;;; Find File
 (define-inline denote-fz-pretty-format-filename (&optional file)
   "Return  a  pretty  formatted string of the note,  denote id  is  ommited  it

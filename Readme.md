@@ -147,6 +147,7 @@ citekey.
 * [denote-fz-add-signature](#denote-fz-add-signature)
 * [denote-fz-add-signature-nested](#denote-fz-add-signature-nested)
 * [denote-fz-add-signature-at-level](#denote-fz-add-signature-at-level)
+* [denote-fz-rename-unnumbered](#denote-fz-rename-unnumbered)
 * [denote-fz-select-command](#denote-fz-select-command)
 
 ### Navigation
@@ -227,6 +228,17 @@ creating a nested note using its signature.
 
 Add a signature to an unnumbered note selecting a target note and
 creating a note at level using its signature.
+
+> [!NOTE]
+> Notes should not generally change signature.The following command is
+> used to correct the premature numbering of notes (I made this
+> mistake in the initial stages of a few zettelkastens). 
+
+### denote-fz-rename-unnumbered
+
+Rename dired marked files' signature to unnumbered. Included for
+convenience; proper use of `denote-fz-unnumbered` should eliminate the
+need for this command.
 
 ### denote-fz-select-command
 
