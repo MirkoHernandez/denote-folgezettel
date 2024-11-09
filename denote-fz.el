@@ -60,7 +60,6 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
   " | sed  's/--/=@/3' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
   "String for setting `ls-option' for `find-dired' command")
 
-
 ;;;; Helpers - Sort
 ;; NOTE:  This method  of  sorting  avoids using  regexp  so that  the
 ;; algorithm  can be  ported to  other languages,  possibly without  a
@@ -87,7 +86,9 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 		 (if (equal result "=")
 		     (setq result (< char-a char-b))
 		   (when (or (= i 0) (not both-numbers))
-		     (setq result (< char-a char-b)))))
+		     (if (or (equal result "=") (not (= i 0)))
+			 result
+		       (setq result (< char-a char-b))))))
 	       (setq both-numbers t))
 	      ;; only a is a number
 	      ((< char-a 58)
@@ -103,7 +104,7 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	       (setq both-numbers nil))
 	      ;; both letters
 	      (t
-	       (if (or (equal result "=" ) (not both-numbers))
+	       (if (or (equal result "=" ))
 		   (unless (= char-a char-b)
 		     (setq result (< char-a char-b)))
 		 (setq i shortest))
