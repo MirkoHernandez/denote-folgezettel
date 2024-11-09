@@ -479,7 +479,7 @@ note of the target's signature id incremented by one."
   (interactive) 
   "Add a signature to  FILE or the current's buffer unnumbered note.
  A prompt asks for a target note and VARIATION describes which new signature is created from the target note."
-  (let* ((file  (buffer-file-name))
+  (let* ((file  (or file (dired-get-filename nil t) (buffer-file-name)))
 	 (file-type (denote-filetype-heuristics file))
 	 (title (denote-retrieve-title-value file file-type))
 	 (keywords (denote-retrieve-keywords-value file file-type))
@@ -499,13 +499,15 @@ note of the target's signature id incremented by one."
  "Add a nested signature to FILE or the current buffer's unnumbered note. A prompt
 asks for the target note on which to base the signature."
   (interactive)
-  (denote-fz-add-signature file 'child))
+  (let ((file (or file (dired-get-filename nil t))))
+    (denote-fz-add-signature file 'child)))
 
 (defun denote-fz-add-signature-at-level (&optional file)
   "Add a  signature at  level to  FILE or the current  buffer's unnumbered  note. A
 prompt asks for the target note on which to base the signature."
   (interactive)
-  (denote-fz-add-signature file 'sibling))
+  (let ((file (or file (dired-get-filename nil t))))
+    (denote-fz-add-signature file 'sibling)))
 
 ;;;; Zettel navigation
 (defun denote-fz-goto-upper-level ()
