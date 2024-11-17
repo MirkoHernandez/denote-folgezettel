@@ -93,14 +93,18 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	      ;; only a is a number
 	      ((< char-a 58)
 	       (when both-numbers
-		 (setq i shortest)
-		 (setq result nil))
+		 (if (= i 0)
+		     (setq result t)
+		     (setq result nil))
+		 (setq i shortest))
 	       (setq both-numbers nil))
 	      ;; only b is a number
 	      ((< char-b 58)
 	       (when both-numbers
-		 (setq i shortest)
-		 (setq result t))
+		 (if (= i 0)
+		     (setq result nil)
+		     (setq result t))
+		 (setq i shortest))
 	       (setq both-numbers nil))
 	      ;; both letters
 	      (t
@@ -373,7 +377,6 @@ the signature until a valid one is found."
   "This is the default `denote-fz-create-function'. It creates a note
 using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
 `denote-prompts'"
-  (interactive)
   (let ((denote-user-enforced-denote-directory default-directory))
     (denote (and (member 'title denote-prompts)
 		 (denote-title-prompt nil (format "[%s] New file Title" signature)))

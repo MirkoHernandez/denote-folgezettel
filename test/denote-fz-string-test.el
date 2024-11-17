@@ -32,16 +32,22 @@
   (should (denote-fz-folgezettel< "1a" "11"))
   (should (denote-fz-folgezettel< "1" "1a"))
   (should (denote-fz-folgezettel< "1a" "1b"))
+  (should (denote-fz-folgezettel< "2d1" "2d2"))
   (should (denote-fz-folgezettel< "5a" "5b"))
   (should (denote-fz-folgezettel< "5ab" "5ac"))
   (should (denote-fz-folgezettel< "5a2" "5b"))
+  (should (denote-fz-folgezettel< "2c" "2c1"))
+  (should (denote-fz-folgezettel< "2b2" "2c1"))
+  (should (denote-fz-folgezettel< "2b2" "2e1"))
   (should (denote-fz-folgezettel< "3a" "3a1"))
   
   (should-not (denote-fz-folgezettel< "1" "1"))
+  (should-not (denote-fz-folgezettel< "unnumbered" "1a"))
   (should-not (denote-fz-folgezettel< "11" "11"))
   (should-not (denote-fz-folgezettel< "11a" "11"))
   (should-not (denote-fz-folgezettel< "3a1" "3a"))
   (should-not (denote-fz-folgezettel< "2za" "2a2"))
+  (should-not (denote-fz-folgezettel< "2d1" "2c1"))
   (should-not (denote-fz-folgezettel< "9" "8"))
   (should-not (denote-fz-folgezettel< "2aa2" "2a2"))
   (should-not (denote-fz-folgezettel< "2a22d" "2a22c")))
@@ -75,4 +81,6 @@
   (should (equal (denote-fz-string-variation "10a20" 'flat) "10a1")))
 
 (provide 'denote-fz-string-test)
+
+
 
