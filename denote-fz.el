@@ -487,7 +487,6 @@ note of the target's signature id incremented by one."
 	 (title (denote-retrieve-title-value file file-type))
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (current-signature  (denote-retrieve-filename-signature file))
-	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (target (denote-fz-find-file))
 	 (signature  (if variation
 			 (denote-fz-find-valid-signature (denote-fz-derived-signature variation target))
@@ -495,7 +494,7 @@ note of the target's signature id incremented by one."
 					(list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
 					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target)))))))
     (if (equal "unnumbered" current-signature)
-	(denote-rename-file file title keywords signature)
+	(denote-rename-file file title keywords signature (denote-valid-date-p (denote-retrieve-filename-identifier file)))
       (message "Not an unnumbered note."))))
 
 (defun denote-fz-add-signature-nested (&optional file)
