@@ -488,18 +488,22 @@ note of the target's signature id incremented by one."
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (current-signature  (denote-retrieve-filename-signature file))
 	 (keywords (denote-retrieve-keywords-value file file-type))
-	 (target (denote-fz-find-file))
+	 (target (denote-fz-find-file nil nil "Select a note to derive a new signature:"))
 	 (signature  (if variation
 			 (denote-fz-find-valid-signature (denote-fz-derived-signature variation target))
-		       (completing-read "Signature:"
+		       (completing-read "New Signature:"
 					(list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
 					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target)))))))
     (if (equal "unnumbered" current-signature)
-	(denote-rename-file file title keywords signature)
+	(progn
+	  (when  (eq major-mode 'dired-mode )
+	    (advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
+	  (denote-rename-file file title keywords signature)
+	  (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer))
       (message "Not an unnumbered note."))))
 
 (defun denote-fz-add-signature-nested (&optional file)
- "Add a nested signature to FILE or the current buffer's unnumbered note. A prompt
+  "Add a nested signature to FILE or the current buffer's unnumbered note. A prompt
 asks for the target note on which to base the signature."
   (interactive)
   (let ((file (or file (dired-get-filename nil t))))
@@ -699,7 +703,7 @@ current-buffer."
             (pcase-let ((`(,title ,keywords ,signature ,date)
                          (denote--rename-get-file-info-from-prompts-or-existing file)))
               (denote--rename-file file title keywords "unnumbered" date)))
-          (denote-update-dired-buffers))
+	  (denote-fz-dired-signature-buffer))
       (user-error "No marked files; aborting"))))
 
 ;;; Find File
@@ -719,7 +723,7 @@ includes only signature title and keywords. FILE is a denote path or string."
 	      (propertize keywords-as-string 'face 'font-lock-note-face)))
     ,file)))
 
-(defun denote-fz-find-file (&optional regex variation)
+(defun denote-fz-find-file (&optional regex variation prompt)
   "Find a denote note using  `completing-read'. The list of candidates
 is pretty  printed. REGEX is  a regular expression to  filter the
 search. Called interactively uses find-file otherwise returns the
@@ -728,7 +732,7 @@ filename."
   (let* ((vertico-sort-function 'identity);; Prevents sorting by history
 	 (paths (mapcar #'denote-fz-pretty-format-filename
 			(denote-fz-search-files (or regex ".*") variation)))
-	 (filename (cdr (assoc (completing-read "Note: " paths  nil t) paths))))
+	 (filename (cdr (assoc (completing-read (or prompt "Note: ") paths  nil t) paths))))
     (if (called-interactively-p 'interactive)
 	(find-file filename)
       ;; For programmatic use, just return the filename.
