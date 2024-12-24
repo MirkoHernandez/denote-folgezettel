@@ -488,6 +488,7 @@ note of the target's signature id incremented by one."
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (current-signature  (denote-retrieve-filename-signature file))
 	 (keywords (denote-retrieve-keywords-value file file-type))
+	 (date (denote-valid-date-p (denote-retrieve-filename-identifier file)))
 	 (target (denote-fz-find-file nil nil "Select a note to derive a new signature:"))
 	 (signature  (if variation
 			 (denote-fz-find-valid-signature (denote-fz-derived-signature variation target))
@@ -498,7 +499,7 @@ note of the target's signature id incremented by one."
 	(progn
 	  (when  (eq major-mode 'dired-mode )
 	    (advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
-	  (denote-rename-file file title keywords signature)
+	  (denote-rename-file file title keywords signature date)
 	  (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer))
       (message "Not an unnumbered note."))))
 
