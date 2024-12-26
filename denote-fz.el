@@ -78,24 +78,29 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	;; both numbers
 	(cond ((and (< char-a 58)
 		    (< char-b 58))
-	       ;; equal
-	       (if (= char-a char-b)
-		   (unless (equal result "=")
-		     (when (= i 0)
-		       (setq result "=")))
-		 (if (equal result "=")
-		     (setq result (< char-a char-b))
-		   (when (or (= i 0) (not both-numbers))
-		     (if (or (equal result "=") (not (= i 0)))
-			 result
-		       (setq result (< char-a char-b))))))
+	       ;; check if previous values were letters.
+	       (cond ((and (not both-numbers )
+			   (not (equal result "=")))
+		      (setq i shortest)
+		      result)
+		     ;; equal
+		     (t (if (= char-a char-b)
+			    (unless (equal result "=")
+			      (when (= i 0)
+				(setq result "=")))
+			  (if (equal result "=")
+			      (setq result (< char-a char-b))
+			    (when (or (= i 0) (not both-numbers))
+			      (if (or (equal result "=") (not (= i 0)))
+				  result
+				(setq result (< char-a char-b))))))))
 	       (setq both-numbers t))
 	      ;; only a is a number
 	      ((< char-a 58)
 	       (when both-numbers
 		 (if (= i 0)
 		     (setq result t)
-		     (setq result nil))
+		   (setq result nil))
 		 (setq i shortest))
 	       (setq both-numbers nil))
 	      ;; only b is a number
@@ -103,7 +108,7 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 	       (when both-numbers
 		 (if (= i 0)
 		     (setq result nil)
-		     (setq result t))
+		   (setq result t))
 		 (setq i shortest))
 	       (setq both-numbers nil))
 	      ;; both letters
