@@ -1,10 +1,10 @@
 # Denote Folgezettel
 
-denote folgezettel (abbreviated denote-fz) is a minor mode that provides commands for
-automatic signature creation and convenient navigation through a
-zettelkasten.
+denote folgezettel (abbreviated denote-fz) is a minor mode that
+provides commands for automatic signature creation and convenient
+navigation through a zettelkasten.
 
-Creating signatures that correspond with a folgezettel id can be
+Creating signatures that correspond with a folgezettel can be
 cumbersome and error prone, providing a solution for this is the
 primary motivation of denote-fz.
 
@@ -32,32 +32,33 @@ package after installation (just once after the installation).
 # Usage
 
 denote-fz is primarily a set of commands, each can be used
-independently after the mode is activated. The minor mode provides a
-means for setting keybindings and, more importantly, to set
+independently. The minor mode `denote-fz-mode` provides a means for
+setting keybindings and, more importantly, to set
 `denote-rename-buffer-mode` so that it displays the signature in the
 modeline.
 
-`dired-jump` is adviced so that it calls `denote-fz-dired-mode`
-instead, this mode creates a dired buffer with the files sorted by
-folgezettel. To disable this you can set `denote-fz-replace-dired-mode`to
-nil.
+When the mode is activated `dired-jump` is adviced so that it calls
+`denote-fz-dired-mode` instead, this mode creates a dired buffer with
+the files sorted by folgezettel. Unless `denote-fz-replace-dired-mode`
+is set to nil.
 
-All the commands use the current directory (`default-directory`) they
-are supposed to be used from a folgezettel note or a directory
-containing one. It is expected that all the folgezettel notes are
-inside the same directory.
+> [!NOTE] 
+> Most commands use the current directory (`default-directory`), they
+> are supposed to be used from a folgezettel note or a directory
+> containing one. It is expected that all the folgezettel notes are
+> inside the same directory.
 
 ## Enabling the mode in a denote silo
 
 To enable the mode in a zettelkasten silo (maybe as a subdirectory of
-a denote silo) you can add the following variable in the `.dir-locals.el` file.
+a denote silo) add the following variable in the `.dir-locals.el` file.
 
 ``` emacs-lisp
 ((nil . ((eval . (denote-fz-mode  t))))
 ```
 
-If the directory itself is set as a silo, `.dir-locals.el`  should look similar to
-this.
+In case the directory itself is set as a silo, `.dir-locals.el` should
+look similar to this.
 
 ``` emacs-lisp
 ((nil . ((denote-directory . default-directory)
@@ -66,7 +67,12 @@ this.
 
 ## Keybinding Configuration
 
-The `denote-fz-command-map` includes all the denote-fz bindings.
+The variable `denote-fz-command-map` includes all the denote-fz
+bindings. This map is just included for convenience, it is recommended
+to bind the most used command as you see fit (transient is a great
+choice for this); usage of the map is optional.
+
+Example configuration:
 
 ``` emacs-lisp
 (define-key denote-fz-mode-map (kbd "C-c z") denote-fz-command-map)
@@ -97,38 +103,6 @@ The `denote-fz-command-map` includes all the denote-fz bindings.
 | `denote-fz-insert-section-dblock`      | <kbd>q</kbd> |
 | `denote-fz-insert-full-section-dblock` | <kbd>w</kbd> |
 
-## Other configuration options
-
-`denote-fz-commands` can be set to a list of valid denote-fz commands
-for note creation, these commands must take a signature as an argument
-and create a denote note in the proper directory (`denote-user-enforced-denote-directory` can be used for this purpose).
-
-The variable `denote-fz-create-function` can be used to permanently
-change the default note creation function.
-
-``` emacs-lisp
-(setq denote-fz-commands
-      '(denote-fz-create
-	my/denote-fz-citar))
-```
-
-The default note creation function `denote-fz-create` (used in the
-following example) creates the note using
-`denote-user-enforced-denote-directory` otherwise this step should be
-included manually.
-
-Here is an example of a command that creates a note and also uses
-`citar-denote-add-citekey`, from the citar-denote package, to add a
-citekey.
-
-``` emacs-lisp
-(defun my/denote-fz-citar (signature)
-  (interactive) 
-  (let ((denote-after-new-note-hook '(denote-rename-buffer-rename-function-or-fallback
-				      save-buffer 
-				      citar-denote-add-citekey)))
-    (funcall 'denote-fz-create signature)))
-```
 
 ## Documentation
 
@@ -231,8 +205,8 @@ creating a note at level using its signature.
 
 > [!NOTE]
 > Notes should not generally change signature.The following command is
-> used to correct the premature numbering of notes (I made this
-> mistake in the initial stages of a few zettelkastens). 
+> used to correct the premature numbering of notes (This can be a common
+> mistake in the initial stages of a zettelkasten). 
 
 ### denote-fz-rename-unnumbered
 
@@ -336,3 +310,38 @@ descendants of the upper level of the dired file at point.
 
 Open a dired buffer with all the top level notes (all the notes that
 include only numbers).
+
+## Advanced configuration options
+
+`denote-fz-commands` can be set to a list of valid denote-fz commands
+for note creation, these commands must take a signature as an argument
+and create a denote note in the proper directory
+(`denote-user-enforced-denote-directory` can be used for this
+purpose).
+
+The variable `denote-fz-create-function` can be used to permanently
+change the default note creation function.
+
+``` emacs-lisp
+(setq denote-fz-commands
+      '(denote-fz-create
+	my/denote-fz-citar))
+```
+
+The default note creation function `denote-fz-create` (used in the
+following example) creates the note using
+`denote-user-enforced-denote-directory` otherwise this step should be
+included manually.
+
+Here is an example of a command that creates a note and also uses
+`citar-denote-add-citekey`, from the citar-denote package, to add a
+citekey.
+
+``` emacs-lisp
+(defun my/denote-fz-citar (signature)
+  (interactive) 
+  (let ((denote-after-new-note-hook '(denote-rename-buffer-rename-function-or-fallback
+				      save-buffer 
+				      citar-denote-add-citekey)))
+    (funcall 'denote-fz-create signature)))
+```
