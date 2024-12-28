@@ -26,9 +26,10 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; This  packages  provides  functions  for  creating  and  navigating
+;; This  package  provides  functions  for  creating  and  navigating
 ;; folgezettel notes.
 
+;;; Code:
 (require 'denote)
 (require 'denote-rename-buffer)
 
@@ -44,7 +45,7 @@ The function  must create a  denote note and  it should accept  a single
 SIGNATURE parameter." )
 
 (defvar denote-fz-dired-function 'denote-fz-dired-sorted
-  "Function used to create a dired buffer with notes sorted by folgezettel." )
+  "Function used to create a Dired buffer with notes sorted by folgezettel." )
 
 (defvar denote-fz-commands
   '(denote-fz-create)
@@ -58,7 +59,7 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 
 (defconst denote-fz-sort-ls-option
   " | sed  's/--/=@/3' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
-  "String for setting `ls-option' for `find-dired' command")
+  "String for setting `ls-option' for `find-dired' command.")
 
 ;;;; Helpers - Sort
 ;; NOTE:  This method  of  sorting  avoids using  regexp  so that  the
@@ -136,7 +137,7 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
       result)))
 
 (defun denote-fz-note< (a b)
-  "Return non-nil if note A has a lower folgezettel value in the signature than note B." 
+  "Return non-nil if note A has a lower folgezettel value in the signature than note B."
   (denote-fz-folgezettel< (denote-retrieve-filename-signature a)
 			  (denote-retrieve-filename-signature b)))
 
@@ -150,20 +151,20 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
   (string-trim str nil "[0-9]+"))
 
 (defun denote-fz-base (str)
-  "Return the base number of a Luhmann Id."
+  "Return the base number of folgezettel STR."
   (string-match "[0-9]+" str)
   (when (not (string-empty-p str ))
     (match-string 0 str)))
 
 (defun denote-fz-get-last-char (str)
- "Return the last char of STR." 
+ "Return the last char of STR."
   (substring str  -1 nil))
 
 
 ;; NOTE: this is just for reducing  the repetition of very similar let
 ;; expressions.
 (defun denote-fz-split-last (str)
-  "Return 3 values: string-without-last-char, last-char, is-last-char-number."
+  "Split STR and return 3 values: string-without-last-char, last-char, is-last-char-number."
   (cl-values (substring str 0 -1 )
 	     (denote-fz-get-last-char str)
 	     (string-match "[0-9]" (denote-fz-get-last-char str))))
@@ -171,8 +172,10 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 ;; NOTE: full-section is the list of notes including the selected note
 ;; and all its descendants, section includes only the immediate descendants.
 (defun denote-fz-create-regex-string (id variation)
-  "Create a regex for searching children,parent, section, full-section.
-Used by `denote-fz-execute-find-command' to find related notes."
+  "Create  a  regex   based  on  ID.
+VARIATION can be base (initial number), parent, children, section
+or full-section. Used by `denote-fz-execute-find-command' to find
+related notes."
   (cl-multiple-value-bind (string-without-last-char last-char last-char-is-num)
       (denote-fz-split-last id)
     (cl-case variation
@@ -194,7 +197,7 @@ Used by `denote-fz-execute-find-command' to find related notes."
 ;;;; Luhmann Id manipulation
 (defun denote-fz-string-increment (str)
   "Increment the ascii value of the last character of STR.
- Used for creating a Luhmann id."
+Used for creating a Luhmann id."
   (cl-multiple-value-bind (string-without-last-char last-char)
       (denote-fz-split-last str)
     ;; Increment string that ends in 9.
@@ -226,7 +229,7 @@ Used for creating a Luhmann id."
 	    (cond ((equal string-without-last-char "") ;; 0 can't be decremented, just return 0.
 		   "0")
 		  ((equal string-without-last-char "1")  ;; decrement 10 to 9, not 09.
-		   "9") 
+		   "9")
 		  ((string-match "[0-9]" (denote-fz-get-last-char string-without-last-char))
 		   (concat (denote-fz-string-decrement string-without-last-char) "9" ))
 		  (t (concat  string-without-last-char  "0")))
@@ -256,14 +259,15 @@ VARIATION indicates how to modify the id."
 ;; Functions that find the corresponding  denote files by using the signature
 ;; or a regex as input.
 (defun denote-fz-execute-find-command (regex)
-  "Execute the find command, REGEX is concatenated with == and - (the enclosing characters of the signature).
+  "Execute the find command, REGEX is concatenated with == and -
+(the enclosing characters of the signature).
 Return string."
   (shell-command-to-string
    (concat "find * -regex " "'\..*==" regex ".*'" denote-fz-sort-command)))
 
 (defun denote-fz-find-sorted-files (regex &optional no-sort)
   "Find a list  of notes matching REGEX.
- The list  is sorted by folgezettel unless NO-SORT is non-nil."
+The list  is sorted by folgezettel unless NO-SORT is non-nil."
   (require 'find-lisp)
   (if no-sort
       (find-lisp-find-files  default-directory (concat    ".*==" (or regex "")  ".*"))
@@ -271,7 +275,8 @@ Return string."
 	  'denote-fz-note<)))
 
 (defun denote-fz-search-files (id &optional variation)
-  "Execute the find command to find files matching the Luhmann ID modified by VARIATION.
+  "Execute the find command to find files matching the Luhmann ID.
+VARIATION is a variation of ID.
 Return string."
   (cl-case variation
     ;; prefix variation returns all the files that have id as prefix.
@@ -288,6 +293,7 @@ Return string."
      (denote-fz-find-sorted-files id))))
 
 (defun denote-fz-search-note (id &optional variation)
+ "Search for note that matches ID and its VARIATION."
   (let* ((notes  (denote-fz-search-files id variation))
 	 (note  (and notes (car notes))))
     (if (string-empty-p note)
@@ -295,13 +301,15 @@ Return string."
       note)))
 
 (defun denote-fz-find-valid-signature (signature)
-  "Find if SIGNATURE is valid signature for note creation. Keep incrementing
-the signature until a valid one is found." 
+  "Find if SIGNATURE is valid signature for note creation.
+Keep incrementing the signature until a valid one is found."
   (if (not (denote-fz-search-note signature))
 	signature
       (denote-fz-find-valid-signature (denote-fz-string-increment  signature))))
 
 (defun denote-fz-find-last-signature-at-level (file-or-signature)
+  "Find the last signature at the level of FILE-OR-SIGNATURE.
+Signature 20a1 might find 20a14 as the last signature"
   (let* ((signature (if (denote-file-is-note-p file-or-signature )
 			(denote-retrieve-filename-signature file-or-signature)
 		      file-or-signature))
@@ -317,6 +325,8 @@ the signature until a valid one is found."
 	  (denote-fz-find-last-signature-at-level (denote-fz-string-increment signature)))))))
 
 (defun denote-fz-find-last-signature-nested (file-or-signature)
+  "Find the last signature at the level of FILE-OR-SIGNATURE.
+Signature 20a1 might find 20a1y as the last nested signature."
   (let* ((signature (if (denote-file-is-note-p file-or-signature )
 			(denote-retrieve-filename-signature file-or-signature)
 		      file-or-signature))
@@ -343,7 +353,7 @@ the signature until a valid one is found."
     (call-interactively 'denote-fz-find-file)))
 
 (defun denote-fz-find-note-in-full-section ()
- "Find a note in the full section of the current file's signature." 
+ "Find a note in the full section of the current file's signature."
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
@@ -353,6 +363,7 @@ the signature until a valid one is found."
 	   (find-file result))))
 
 (defun denote-fz-visit-by-signature (signature)
+  "Visit note that has SIGNATURE."
   (let ((note  (denote-fz-search-note
 		signature) ))
     (when note
@@ -360,11 +371,11 @@ the signature until a valid one is found."
 
 ;;;; Zettel creation
 (defun denote-fz-retrieve-ids (files)
-  "Return a list of signatures corresponding to the list FILES." 
+  "Return a list of signatures corresponding to the list FILES."
   (mapcar #'denote-retrieve-filename-signature files))
 
 (cl-defun denote-fz-custom (&key title keywords file subdirectory date template signature)
-  "Helper function to facilitate the creation of notes with signatures." 
+  "Helper function to facilitate the creation of notes with signatures."
   (interactive)
   (funcall-interactively 'denote
 			 (or title (denote-title-prompt))
@@ -379,9 +390,9 @@ the signature until a valid one is found."
 			 (or signature nil)))
 
 (defun denote-fz-create (signature)
-  "This is the default `denote-fz-create-function'. It creates a note
-using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
-`denote-prompts'"
+  "This is the default `denote-fz-create-function'.
+It creates a note using  SIGNATURE, prompts are used depending on
+the value of `denote-prompts'"
   (let ((denote-user-enforced-denote-directory default-directory))
     (denote (and (member 'title denote-prompts)
 		 (denote-title-prompt nil (format "[%s] New file Title" signature)))
@@ -407,9 +418,10 @@ using  SIGNATURE,   prompts  are   used  depending   on  the   value  of
 	  "Command: " denote-fz-commands ))))
 
 (defun denote-fz-create-note (file-or-signature &optional no-auto-increment)
-  "Creates a  note using SIGNATURE.If  the note already  exists keep
-incrementing the signature until it finds a valid one for note creation.
-If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
+  "Create a  note using SIGNATURE.
+If the note already exists  keep incrementing the signature until
+it finds a  valid one for note creation.  If NO-AUTO-INCREMENT is
+non-nil the signature will not be incremented."
   (if (not (denote-fz-search-note file-or-signature 'prefix))
       (funcall denote-fz-create-function file-or-signature)
     (if (not no-auto-increment)
@@ -421,9 +433,9 @@ If NO-AUTO-INCREMENT is non-nil the signature will not be incremented."
 	(message "Signature %s already exists" (propertize file-or-signature 'face  'font-lock-warning-face))))))
 
 (defun denote-fz-derived-signature (&optional variation file-or-signature)
-  "Retrieves the current buffer's signature and creates a variation of that signature.
+  "Retrieve the current buffer's signature and create a variation.
 VARIATION    specifies    how    to   modify    the    signature,
-FILE-OR_SIGNATURE  a file  or  signature to  use  instead of  the
+FILE-OR-SIGNATURE  a file  or  signature to  use  instead of  the
 current buffer. Return string."
   (let* ((file-or-signature (or file-or-signature (buffer-file-name)))
 	 (signature (denote-retrieve-filename-signature file-or-signature)))
@@ -434,9 +446,9 @@ current buffer. Return string."
 	(message  "No signature found for %s" file-or-signature)))))
 
 (defun denote-fz-new()
-  "Create a new top level note (the  folgezettel as a number); if there are
-none top level notes, it creates the first note, using \"1\" as the signature."
-  "Create the first folgezettel note, with 1 as the signature."
+  "Create a new top level note (the  folgezettel will be a number).
+If there are no top level notes, it creates the first note, using \"1\"
+as the signature."
   (interactive)
   (denote-fz-create-note "1"))
 
@@ -459,14 +471,14 @@ none top level notes, it creates the first note, using \"1\" as the signature."
      (aref unnumbered-array new-position))))
 
 (defun denote-fz-insert-dwim()
-  "Uses  the current  buffer's  signature as  the  target. Insert  a
-nested note using the target's signature id."
+  "Use the current buffer's signature as the target.
+Insert a nested note using the target's signature id."
   (interactive)
   (denote-fz-create-note (denote-fz-derived-signature 'child)))
 
 (defun denote-fz-insert-at-level-dwim ()
-  "Uses the current buffer's signature as the target. Insert a
-note of the target's signature id incremented by one."
+  "Use the current buffer's signature as the target.
+Insert a note of the target's signature id incremented by one."
   (interactive)
   (denote-fz-create-note (denote-fz-derived-signature 'sibling)))
 
@@ -484,15 +496,15 @@ note of the target's signature id incremented by one."
 
 ;;;; Zettel Editing
 (defun denote-fz-add-signature (&optional file variation)
-  (interactive) 
   "Add a signature to  FILE or the current's buffer unnumbered note.
- A prompt asks for a target note and VARIATION describes which new signature is created from the target note."
+A prompt asks for a target note and VARIATION describes which new
+signature is created from the target note."
+  (interactive)
   (let* ((file  (or file (dired-get-filename nil t) (buffer-file-name)))
 	 (file-type (denote-filetype-heuristics file))
 	 (title (denote-retrieve-title-value file file-type))
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (current-signature  (denote-retrieve-filename-signature file))
-	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (date (denote-valid-date-p (denote-retrieve-filename-identifier file)))
 	 (target (denote-fz-find-file nil nil "Select a note to derive a new signature:"))
 	 (signature  (if variation
@@ -509,15 +521,15 @@ note of the target's signature id incremented by one."
       (message "Not an unnumbered note."))))
 
 (defun denote-fz-add-signature-nested (&optional file)
-  "Add a nested signature to FILE or the current buffer's unnumbered note. A prompt
-asks for the target note on which to base the signature."
+  "Add a nested signature to FILE or the current buffer's unnumbered note.
+A prompt asks for the target note on which to base the signature."
   (interactive)
   (let ((file (or file (dired-get-filename nil t))))
     (denote-fz-add-signature file 'child)))
 
 (defun denote-fz-add-signature-at-level (&optional file)
-  "Add a  signature at  level to  FILE or the current  buffer's unnumbered  note. A
-prompt asks for the target note on which to base the signature."
+  "Add a  signature at  level to  FILE or the current  buffer's unnumbered  note.
+A prompt asks for the target note on which to base the signature."
   (interactive)
   (let ((file (or file (dired-get-filename nil t))))
     (denote-fz-add-signature file 'sibling)))
@@ -533,8 +545,7 @@ prompt asks for the target note on which to base the signature."
       (message "Note in upper level does not exists."))))
 
 (defun denote-fz-goto-nested ()
-  "Visit a note corresponding with  the current buffer's signature id
-first nested note."
+  "Visit a note corresponding with  the current buffer's signature id first nested note."
   (interactive)
   (let* ((child-signature (denote-fz-derived-signature 'child))
 	 (child (denote-fz-search-note child-signature)))
@@ -543,7 +554,7 @@ first nested note."
       (message "Nested note does not exists."))))
 
 (defun denote-fz-goto-next ()
-  "Visit a note with the current buffer's signature id incremented by one unit." 
+  "Visit a note with the current buffer's signature id incremented by one unit."
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
 	 (sibling (denote-fz-search-note sibling-signature)))
@@ -564,22 +575,22 @@ first nested note."
 	    (message "%s" (propertize "First Note of the sequence." 'face  'font-lock-warning-face)))))))
 
 (defun denote-fz-cycle ()
- "Visit a note  with the current buffer's  signature id incremented
-by one unit. If the end of the sequence is reached start from the
-first note of the current level."
+  "Visit a note  with the current buffer's  signature id incremented by one unit.
+If the end  of the sequence is reached start  from the first note
+of the current level."
   (interactive)
   (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
 	 (sibling (denote-fz-search-note sibling-signature))
-	 (first-sibling-signature (denote-fz-derived-signature 'flat))
-	 (first-sibling (denote-fz-search-note first-sibling-signature)))
+	 (first-sibling-signature (denote-fz-derived-signature 'flat)))
     (if (not (string-empty-p sibling))
 	(find-file sibling)
       (find-file (denote-fz-search-note first-sibling-signature))
       (message "%s" (propertize "Last Note of the sequence." 'face  'font-lock-warning-face)))))
 
 (defun denote-fz-follow-through ()
-  "Find  the next  contiguous  note. Prioritize  nested notes,  then
-notes at the same level, then the next note in the upper level."
+  "Find  the next  contiguous  note.
+Prioritize nested notes,  then notes at the same  level, then the
+next note in the upper level."
   (interactive)
   (let* ((child-signature (denote-fz-derived-signature 'child))
 	 (child (denote-fz-search-note child-signature) ))
@@ -596,8 +607,9 @@ notes at the same level, then the next note in the upper level."
 	      (message "%s" (propertize "Last Note." 'face  'font-lock-warning-face)))))))))
 
 (defun denote-fz-backward-follow-through (&optional file)
-  "Find  the previous  contiguous  note. Prioritize  nested notes of the previous note,  then
-notes at the same level, then the previous note in the upper level."
+  "Find  the previous  contiguous  note of FILE or the current buffer's signature.
+Prioritize nested notes  of the previous note, then  notes at the
+same level, then the previous note in the upper level."
   (interactive)
   (let* ((current-signature (denote-retrieve-filename-signature (or file (buffer-file-name))))
 	 (previous-signature (denote-fz-derived-signature 'decrement current-signature))
@@ -621,10 +633,12 @@ notes at the same level, then the previous note in the upper level."
 		(find-file previous-parent)
 	      (message "%s" (propertize "First Note." 'face  'font-lock-warning-face)))))))))
 
-;;; Helpers - Dired 
+
+;;; Helpers - Dired
+;; TODO: make obsolete.
 (defun denote-fz-set-find-ls-option (&optional regex)
-  "Create  find-ls-option (used  with  find-dired)  using REGEX,  if
-regex is null  use a regexp that searches for  all the notes that
+  "Create  find-ls-option (used  with  find-dired)  using REGEX.
+If regex is null  use a regexp that searches for  all the notes that
 have a signature."
   (defvar-local find-ls-option nil)
   (let ((find-argument  (concat (if regex
@@ -635,6 +649,7 @@ have a signature."
       .
       "-ld")))
 
+;; TODO: make obsolete.
 (defun denote-fz-find-dired (&optional regex)
   (let ((find-ls-option (denote-fz-set-find-ls-option regex))
 	(current-find-dired-option find-dired-refine-function))
@@ -647,6 +662,7 @@ have a signature."
     (setq find-dired-refine-function current-find-dired-option)))
 
 (defun denote-fz-dired-sorted (&optional regex)
+ "Creates  a  sorted Dired  buffer  with  notes corresponding  with REGEX."
   (require 'find-lisp)
   (let ((files (mapcar 'file-name-nondirectory
 		       (denote-fz-find-sorted-files  regex))))
@@ -654,37 +670,36 @@ have a signature."
 
 ;;;; Dired Commands
 (defun denote-fz-dired-signature-buffer ()
-  "Create  a dired  buffer displaying  all the  notes sorted  by the
-signature id. With prefix argument (e.g., C-u), call `dired-jump' instead."
+  "Create  a Dired  buffer displaying sorted notes.
+With prefix argument, call `dired-jump' instead."
   (interactive)
   (if (or current-prefix-arg (not denote-fz-mode))
-      (funcall (advice--cd*r (symbol-function #'dired-jump))) 
+      (funcall (advice--cd*r (symbol-function #'dired-jump)))
     (funcall denote-fz-dired-function)))
 
 (defun denote-fz-dired-top-level-notes ()
-  "Create a dired buffer displaying the top level notes."
+  "Create a Dired buffer displaying the top level notes."
   (interactive)
   (funcall denote-fz-dired-function "[0-9]+--.*"))
 
-(defun denote-fz-dired-up ()
-  "Create a  dired buffer displaying the  immediate descendent notes
-of the dired file at point or the current buffer."
-  (interactive)
-  (funcall denote-fz-dired-function "[0-9]+--.*"))
 
 (defun denote-fz-dired-section ()
-  "Create a  dired buffer displaying the  immediate descendent notes
-of the dired file at point or the current buffer."
+  "Create a  Dired buffer displaying immediate descendent notes.
+The Dired file at point or the current buffer is used as starting signature."
   (interactive)
   (let* ((file (or (dired-get-filename nil t) (buffer-file-name (current-buffer))))
 	 (signature (denote-retrieve-filename-signature file))
 	 (regex (denote-fz-create-regex-string signature 'full-section)))
   (funcall denote-fz-dired-function regex)))
 
+(defun denote-fz-dired-up ()
+  (interactive)
+  (funcall denote-fz-dired-function "[0-9]+--.*"))
+
 (defun denote-fz-dired-section-up ()
-  "Create a  dired buffer displaying the  immediate descendant notes
-of  the  upper   level  of  the  dired  file  at   point  or  the
-current-buffer."
+  "Create a  Dired buffer.
+It displays the immediate descendant  notes of the upper level of
+the Dired file at point or the current buffer."
   (interactive)
   (let* ((file (or (dired-get-filename nil t) (buffer-file-name (current-buffer))))
 	 (signature (denote-retrieve-filename-signature file))
@@ -714,8 +729,9 @@ current-buffer."
 
 ;;; Find File
 (define-inline denote-fz-pretty-format-filename (&optional file)
-  "Return  a  pretty  formatted string of the note,  denote id  is  ommited  it
-includes only signature title and keywords. FILE is a denote path or string."
+  "Return  a  pretty  formatted string of a note.
+If  denote id  is omitted  it includes  only signature  title and
+keywords. FILE is a denote path or string."
   (inline-quote
    (cons
     (let* ((file (or ,file (buffer-file-name)))
@@ -730,10 +746,11 @@ includes only signature title and keywords. FILE is a denote path or string."
     ,file)))
 
 (defun denote-fz-find-file (&optional regex variation prompt)
-  "Find a denote note using  `completing-read'. The list of candidates
-is pretty  printed. REGEX is  a regular expression to  filter the
-search. Called interactively uses find-file otherwise returns the
-filename."
+  "Find a denote note using  `completing-read'.
+The  list of  candidates is  pretty printed.  REGEX is  a regular
+expression to filter the search.  VARIATION is what kind of notes
+to look  for. PROMPT  is prompt  string. Called  interactively it
+uses `find-file' otherwise return the filename."
   (interactive)
   (let* ((vertico-sort-function 'identity);; Prevents sorting by history
 	 (paths (mapcar #'denote-fz-pretty-format-filename
@@ -753,7 +770,8 @@ filename."
 	   file))))
 
 (defun denote-fz-insert-dblock (regexp)
-  "Create a db block using REGEXP. Sorted by signature"
+  "Create a db block using REGEXP.
+Sorted by signature"
   (org-create-dblock (list :name "denote-links"
                            :regexp regexp
                            :sort-by-component 'signature
@@ -762,21 +780,19 @@ filename."
   (org-update-dblock))
 
 (defun denote-fz-insert-section-dblock ()
- "Insert   dblock   with   a    regexp   corresponding   with   the
-section (immediate descendents) of the current buffer id."
+  "Insert   dblock   of the current buffer's section."
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
 	 (signature (denote-retrieve-filename-signature file))
 	 (section (if (and signature (not (string-empty-p signature)))
-			   (denote-fz-create-regex-string signature 'section)
-			 "[0-9]+--"))
+		      (denote-fz-create-regex-string signature 'section)
+		    "[0-9]+--"))
 	 (regexp (concat parent-dir ".*==" section)))
     (denote-fz-insert-dblock regexp)))
 
 (defun denote-fz-insert-full-section-dblock ()
-  "Insert dblock with a regexp  corresponding with the full section of the
-current buffer id. "
+  "Insert dblock of the current buffer's full section."
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
@@ -788,8 +804,7 @@ current buffer id. "
     (denote-fz-insert-dblock regexp)))
 
 (defun denote-fz-insert-current-section-dblock ()
-  "Insert dblock  with a regexp  corresponding with  the notes at  the same
-level of the current buffer id."
+  "Insert dblock  with the current buffer's notes  at  the same level."
   (interactive)
   (let* ((file (buffer-file-name))
 	 (parent-dir (denote-fz-parent-directory file))
@@ -858,7 +873,6 @@ level of the current buffer id."
     map)
   "Keymap used for `denote-fz-mode'.")
 
-
 ;;;###autoload
 (define-minor-mode denote-fz-mode
   "Provide functions for creating and navigating folgezettel notes."
@@ -872,7 +886,7 @@ level of the current buffer id."
           (advice-add 'dired-jump :override #'denote-fz-dired-signature-buffer))
 	(denote-rename-buffer-mode t)
 	(denote-rename-buffer-rename-function-or-fallback)
-	(run-hooks 'denote-fz-mode-hook))	
+	(run-hooks 'denote-fz-mode-hook))
     (progn
       (advice-remove 'dired-jump #'denote-fz-dired-signature-buffer)
       (setq denote-rename-buffer-format  "%t"))
@@ -885,14 +899,11 @@ level of the current buffer id."
 
 ;;;###autoload
 (define-minor-mode denote-fz-dired-mode
-  "Minor mode for creating dired buffers of folgezettel notes,
-it  provides the  correct ordering  of  files in  dired and  some
-narrowing functions."
+  "Minor mode for creating Dired buffers containing sorted notes."
   :init-value nil
   :group 'denote-fz-dired
   :keymap denote-fz-dired-mode-map
-  :lighter denote-fz-dired-mode-string
-  )
+  :lighter denote-fz-dired-mode-string)
 
 (provide 'denote-fz)
 ;;; denote-fz.el ends here
