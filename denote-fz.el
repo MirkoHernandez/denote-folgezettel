@@ -242,18 +242,21 @@ VARIATION indicates how to modify the id."
   (when (and str (not (string-empty-p str)))
     (cl-multiple-value-bind (string-without-last-char last-char last-char-is-num)
 	(denote-fz-split-last str)
-      (cl-case variation
-	(parent (if last-char-is-num
-		    (denote-fz-trim-numbers str)
-		  string-without-last-char))
-	(decrement (denote-fz-string-decrement str))
-	(sibling (denote-fz-string-increment str))
-	(child (if last-char-is-num
-		   (concat str "a")
-		 (concat str "1")))
-	(flat (if last-char-is-num
-		  (concat (denote-fz-trim-numbers str) "1")
-		(concat (denote-fz-trim-chars str) "a")))))))
+      (let ((result (cl-case variation
+		      (parent (if last-char-is-num
+				  (denote-fz-trim-numbers str)
+				string-without-last-char))
+		      (decrement (denote-fz-string-decrement str))
+		      (sibling (denote-fz-string-increment str))
+		      (increment (denote-fz-string-increment str))
+		      (child (if last-char-is-num
+				 (concat str "a")
+			       (concat str "1")))
+		      (flat (if last-char-is-num
+				(concat (denote-fz-trim-numbers str) "1")
+			      (concat (denote-fz-trim-chars str) "a"))))))
+	(when (not (string-empty-p result))
+	  result)))))
 
 ;;; Helpers - Find Files
 ;; Functions that find the corresponding  denote files by using the signature
@@ -293,12 +296,13 @@ Return string."
      (denote-fz-find-sorted-files id))))
 
 (defun denote-fz-search-note (id &optional variation)
- "Search for note that matches ID and its VARIATION."
-  (let* ((notes  (denote-fz-search-files id variation))
-	 (note  (and notes (car notes))))
-    (if (string-empty-p note)
-	nil
-      note)))
+  "Search for note that matches ID and its VARIATION."
+  (when id
+    (let* ((notes  (denote-fz-search-files id variation))
+	   (note  (and notes (car notes))))
+      (if (string-empty-p note)
+	  nil
+	note))))
 
 (defun denote-fz-find-valid-signature (signature)
   "Find if SIGNATURE is valid signature for note creation.
@@ -327,23 +331,24 @@ Signature 20a1 might find 20a14 as the last signature"
 (defun denote-fz-find-last-signature-nested (file-or-signature)
   "Find the last signature at the level of FILE-OR-SIGNATURE.
 Signature 20a1 might find 20a1y as the last nested signature."
-  (let* ((signature (if (denote-file-is-note-p file-or-signature )
-			(denote-retrieve-filename-signature file-or-signature)
-		      file-or-signature))
-	 (note (denote-fz-search-note signature))
-	 (child-signature (denote-fz-string-variation signature 'child))
-	 (child (denote-fz-search-note child-signature )))
-    (if (not note)
-	nil
-      (if (not child)
-	  signature
-	(let* ((last-child-signature (denote-fz-find-last-signature-at-level child))
-	       (last-child
-		(denote-fz-search-note
-		 last-child-signature )))
-	  (if (not last-child)
-	      child-signature
-	    (denote-fz-find-last-signature-nested last-child-signature)))))))
+  (when file-or-signature 
+    (let* ((signature (if (denote-file-is-note-p file-or-signature )
+			  (denote-retrieve-filename-signature file-or-signature)
+			file-or-signature))
+	   (note (denote-fz-search-note signature))
+	   (child-signature (denote-fz-string-variation signature 'child))
+	   (child (denote-fz-search-note child-signature )))
+      (if (not note)
+	  nil
+	(if (not child)
+	    signature
+	  (let* ((last-child-signature (denote-fz-find-last-signature-at-level child))
+		 (last-child
+		  (denote-fz-search-note
+		   last-child-signature )))
+	    (if (not last-child)
+		child-signature
+	      (denote-fz-find-last-signature-nested last-child-signature))))))))
 
 ;;;; Denote defuns
 (defun denote-fz-find-note ()
@@ -438,12 +443,14 @@ VARIATION    specifies    how    to   modify    the    signature,
 FILE-OR-SIGNATURE  a file  or  signature to  use  instead of  the
 current buffer. Return string."
   (let* ((file-or-signature (or file-or-signature (buffer-file-name)))
-	 (signature (denote-retrieve-filename-signature file-or-signature)))
+	 (signature (or (denote-retrieve-filename-signature file-or-signature)
+			file-or-signature)))
     (if (equal signature "unnumbered")
 	"unnumbered"
       (if signature
 	  (denote-fz-string-variation signature variation)
-	(message  "No signature found for %s" file-or-signature)))))
+	(message  "No signature found for %s" file-or-signature)
+	nil))))
 
 (defun denote-fz-new()
   "Create a new top level note (the  folgezettel will be a number).
@@ -587,24 +594,37 @@ of the current level."
       (find-file (denote-fz-search-note first-sibling-signature))
       (message "%s" (propertize "Last Note of the sequence." 'face  'font-lock-warning-face)))))
 
-(defun denote-fz-follow-through ()
-  "Find  the next  contiguous  note.
+(defun denote-fz-follow-through (&optional file)
+  "Find  the next  contiguous  note. FILE
 Prioritize nested notes,  then notes at the same  level, then the
 next note in the upper level."
   (interactive)
-  (let* ((child-signature (denote-fz-derived-signature 'child))
-	 (child (denote-fz-search-note child-signature) ))
-    (if child
-	(find-file child)
-      (let* ((sibling-signature (denote-fz-derived-signature 'sibling))
-	     (sibling (denote-fz-search-note sibling-signature)))
-	(if sibling
-	    (find-file sibling)
-	  (let* ((parent-signature (denote-fz-derived-signature 'parent))
-		 (parent-incremented (denote-fz-search-note (denote-fz-string-increment parent-signature))))
-	    (if parent-incremented
-		(find-file parent-incremented)
-	      (message "%s" (propertize "Last Note." 'face  'font-lock-warning-face)))))))))
+  (let* ((current-signature (denote-retrieve-filename-signature (or file (buffer-file-name))))
+	 (child-signature (denote-fz-derived-signature 'child current-signature))
+	 (child (denote-fz-search-note child-signature))
+	 (sibling-signature (denote-fz-derived-signature 'sibling current-signature))
+	 (sibling (denote-fz-search-note sibling-signature))
+	 (parent-signature (denote-fz-derived-signature 'parent current-signature))
+	 (parent (denote-fz-search-note  (denote-fz-derived-signature 'parent current-signature)))
+	 (parent-last-child (denote-fz-find-last-signature-nested parent-signature))
+	 (next-to-parent (denote-fz-search-note
+			  (denote-fz-derived-signature 'sibling
+						       parent-signature))))
+    (cond (child
+	   (find-file child))
+	  (sibling
+	   (find-file sibling))
+	  (next-to-parent
+	   (find-file next-to-parent))
+	  ((equal parent-last-child current-signature)
+	   (find-file
+	    (denote-fz-search-note
+	     (denote-fz-derived-signature 'sibling
+					  (denote-fz-derived-signature 'parent parent-signature)))))
+	  (parent
+	   parent)
+	  (t
+	   (message "%s" (propertize "Last Note." 'face  'font-lock-warning-face))))))
 
 (defun denote-fz-backward-follow-through (&optional file)
   "Find  the previous  contiguous  note of FILE or the current buffer's signature.
@@ -613,26 +633,21 @@ same level, then the previous note in the upper level."
   (interactive)
   (let* ((current-signature (denote-retrieve-filename-signature (or file (buffer-file-name))))
 	 (previous-signature (denote-fz-derived-signature 'decrement current-signature))
-	 (previous-note (denote-fz-search-note previous-signature) )
-	 (parent (denote-fz-search-note
-		  (denote-fz-derived-signature 'decrement
-					       (denote-fz-derived-signature 'parent))) )
-	 (last-child-signature (denote-fz-find-last-signature-nested previous-signature))
-	 (last-child (denote-fz-search-note last-child-signature)))
-    (if (equal current-signature previous-signature)
-	(if parent
-	    (denote-fz-visit-by-signature  (denote-fz-find-last-signature-nested parent))
-	  (message "%s" (propertize "First Note." 'face  'font-lock-warning-face)))
-      (if (and last-child (not (string-empty-p last-child)))
-	  (find-file last-child)
-	(if (and previous-note (not (string-empty-p previous-note)))
-	    (find-file previous-note)
-	  (let* ((parent-signature (denote-fz-derived-signature 'parent))
-		 (previous-parent (denote-fz-search-note (denote-fz-string-decrement parent-signature)) ))
-	    (if (and previous-parent (not (string-empty-p previous-parent)))
-		(find-file previous-parent)
-	      (message "%s" (propertize "First Note." 'face  'font-lock-warning-face)))))))))
-
+	 (previous (unless (equal current-signature
+				  previous-signature)
+		     (denote-fz-search-note previous-signature)))
+	 (previous-last-child-signature (and previous
+					     (denote-fz-find-last-signature-nested previous-signature)))
+	 (previous-last-child (denote-fz-search-note previous-last-child-signature))
+	 (parent (denote-fz-search-note (denote-fz-derived-signature 'parent current-signature))))
+    (cond (previous-last-child
+	   (find-file previous-last-child))
+	  (previous
+	   (find-file previous))
+	  (parent
+	   (find-file parent))
+	  (t
+	   (message "%s" (propertize "First Note." 'face  'font-lock-warning-face))))))
 
 ;;; Helpers - Dired
 ;; TODO: make obsolete.
