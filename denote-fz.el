@@ -927,6 +927,11 @@ Sorted by signature"
   :group 'denote-fz
   :type 'hook)
 
+(defcustom denote-fz-dired-mode-hook nil
+  "Run at the very end of `denote-fz-dired-mode'."
+  :group 'denote-fz-dired
+  :type 'hook)
+
 (defcustom denote-fz-keymap-prefix nil
   "denote-fz keymap prefix."
   :group 'denote-fz
@@ -1000,7 +1005,9 @@ Sorted by signature"
   :init-value nil
   :group 'denote-fz-dired
   :keymap denote-fz-dired-mode-map
-  :lighter denote-fz-dired-mode-string)
+  :lighter denote-fz-dired-mode-string
+  (when denote-fz-dired-mode
+      (run-mode-hooks 'denote-fz-dired-mode-hook)))
 
 (provide 'denote-fz)
 ;;; denote-fz.el ends here
