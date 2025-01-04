@@ -51,8 +51,9 @@ SIGNATURE parameter." )
   '(denote-fz-create)
   "List of commands that denote-fz can use to create notes.")
 
-(defvar denote-fz-dired-current-section  nil
-  "Currently active section in Dired.")
+(defvar denote-fz-dired-dirs-table (make-hash-table :test equal) 
+  "Table of directories in which a denote-fz Dired command has been used.
+It can be used to describe active zettelkasten directories.")
 
 ;;;; Constants
 (defconst denote-fz-sort-command
@@ -264,6 +265,7 @@ VARIATION indicates how to modify the id."
 ;;; Helpers - Find Files
 ;; Functions that find the corresponding  denote files by using the signature
 ;; or a regex as input.
+;; TODO: make obsolete
 (defun denote-fz-execute-find-command (regex)
   "Execute the find command, REGEX is concatenated with == and -
 (the enclosing characters of the signature).
@@ -681,10 +683,25 @@ have a signature."
 
 (defun denote-fz-dired-sorted (&optional regex)
  "Creates  a  sorted Dired  buffer  with  notes corresponding  with REGEX."
-  (require 'find-lisp)
   (let ((files (mapcar 'file-name-nondirectory
 		       (denote-fz-find-sorted-files  regex))))
-    (dired (cons default-directory files))))
+    (dired (cons default-directory files))
+    (denote-fz-dired-mode t)))
+
+(defun denote-fz-set-section (signature)
+  (let* ((file (or (dired-get-filename nil t) (buffer-file-name)))
+	 (dir (file-name-parent-directory file)))
+  (puthash
+   dir 
+   signature
+   denote-fz-dired-dirs-table)))
+
+(defun denote-fz-get-section ()
+  (let* ((file (or (dired-get-filename nil t) (buffer-file-name)))
+	 (dir (file-name-parent-directory file)))
+    (gethash
+     dir
+     denote-fz-dired-dirs-table)))
 
 ;;;; Dired Commands
 (defun denote-fz-dired-signature-buffer ()
@@ -707,7 +724,7 @@ The Dired file at point or the current buffer is used as starting signature."
   (let* ((file (or file (dired-get-filename nil t) (buffer-file-name (current-buffer))))
 	 (signature (denote-retrieve-filename-signature file))
 	 (regex (denote-fz-create-regex-string signature 'section)))
-    (setq denote-fz-dired-current-section signature)
+   (denote-fz-set-section signature)
   (funcall denote-fz-dired-function regex)))
 
 (defun denote-fz-dired-full-section (&optional file)
@@ -717,7 +734,7 @@ The Dired file at point or the current buffer is used as starting signature."
   (let* ((file (or file (dired-get-filename nil t) (buffer-file-name (current-buffer))))
 	 (signature (denote-retrieve-filename-signature file))
 	 (regex (denote-fz-create-regex-string signature 'full-section)))
-    (setq denote-fz-dired-current-section signature)
+   (denote-fz-set-section signature) 
     (funcall denote-fz-dired-function regex)))
 
 (defun denote-fz-dired-section-up (&optional file)
@@ -731,7 +748,7 @@ the Dired file at point or the current buffer."
 	 (regex (if (not parent)
 		    "[0-9]+--.*"
 		  (denote-fz-create-regex-string parent 'section))))
-    (setq denote-fz-dired-current-section parent)
+    (denote-fz-set-section parent)
     (funcall denote-fz-dired-function regex)))
 
 (defun denote-fz-dired-full-section-up (&optional file)
@@ -745,66 +762,67 @@ the Dired file at point or the current buffer."
 	 (regex (if (not parent)
 		    (denote-fz-dired-signature-buffer) 
 		  (denote-fz-create-regex-string parent 'full-section))))
-    (setq denote-fz-dired-current-section parent)
+    (denote-fz-set-section parent)
     (funcall denote-fz-dired-function regex)))
 
 (defun denote-fz-dired-next-section ()
-  ""
+  "Create a Dired Buffer.
+It displays  section that follows `denote-fz-dired-current-section'."
   (interactive)
   (let* ((next-signature (denote-fz-derived-signature 'increment
-						      (or (denote-fz-derived-signature 'parent
-										       denote-fz-dired-current-section)
-							  denote-fz-dired-current-section)))
+						     (denote-fz-get-section)))
 	 (note (denote-fz-search-note next-signature)))
     (if note
 	(denote-fz-dired-section note)
       (message "Last Section"))))
 
 (defun denote-fz-dired-next-full-section ()
-  ""
+  "Create a Dired Buffer.
+It displays the full section that follows `denote-fz-dired-current-section'."
   (interactive)
-  (let* ((next-signature (denote-fz-derived-signature 'increment
-						      (or (denote-fz-derived-signature 'parent
-										       denote-fz-dired-current-section)
-							  denote-fz-dired-current-section)))
-	 (note (denote-fz-search-note next-signature)))
+  (let* ((signature (denote-fz-derived-signature 'increment
+						 (denote-fz-get-section)))
+	 (note (denote-fz-search-note signature)))
     (if note
 	(denote-fz-dired-full-section note)
       (message "Last Section"))))
 
 (defun denote-fz-dired-previous-section ()
-  ""
+  "Create a Dired Buffer.
+It displays the section before `denote-fz-dired-current-section'."
   (interactive)
-  (let* ((previous-signature (denote-fz-derived-signature 'decrement
-						      (or (denote-fz-derived-signature 'parent
-										       denote-fz-dired-current-section)
-							  denote-fz-dired-current-section)))
-	 (note (denote-fz-search-note previous-signature)))
+  (let* ((signature (denote-fz-derived-signature 'decrement
+						 (or (denote-fz-derived-signature 'parent
+										  (denote-fz-get-section))
+						     (denote-fz-get-section))))
+	 (note (denote-fz-search-note signature)))
     (if note
 	(denote-fz-dired-section note)
       (message "First Section"))))
 
 (defun denote-fz-dired-previous-full-section ()
-  ""
+  "Create a Dired Buffer.
+It displays the full section before `denote-fz-dired-current-section'."
   (interactive)
-  (let* ((next-signature (denote-fz-derived-signature 'decrement
-						      (or (denote-fz-derived-signature 'parent
-										       denote-fz-dired-current-section)
-							  denote-fz-dired-current-section)))
-	 (note (denote-fz-search-note next-signature)))
+  (let* ((signature (denote-fz-derived-signature 'decrement
+						 (or (denote-fz-derived-signature 'parent
+										  (denote-fz-get-section) 
+										  )
+						     (denote-fz-get-section))))
+	 (note (denote-fz-search-note signature)))
     (if note
 	(denote-fz-dired-full-section note)
       (message "Last Section"))))
 
 (defun denote-fz-dired-last-section ()
-  ""
+ "Create a Dired Buffer using the section of `denote-fz-dired-current-section'." 
   (interactive)
-	(denote-fz-dired-section (denote-fz-search-note denote-fz-dired-current-section)))
+  (denote-fz-dired-section (denote-fz-search-note (denote-fz-get-section))))
 
 (defun denote-fz-dired-last-full-section ()
-  ""
+  "Create a Dired Buffer using the full section of `denote-fz-dired-current-section'." 
   (interactive)
-  (denote-fz-dired-full-section (denote-fz-search-note denote-fz-dired-current-section)))
+  (denote-fz-dired-full-section (denote-fz-search-note (denote-fz-get-section))))
 
 ;;;; Renaming commands
 (defun denote-fz-rename-unnumbered (&optional file)
