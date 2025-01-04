@@ -149,7 +149,12 @@ Example configuration:
 * [denote-fz-dired-section](#denote-fz-dired-section)
 * [denote-fz-dired-section-up](#denote-fz-dired-section-up)
 * [denote-fz-dired-top-level-notes](#denote-fz-dired-top-level-notes)
-
+* [denote-fz-dired-next-section](#denote-fz-dired-next-section)
+* [denote-fz-dired-previous-section](#denote-fz-dired-previous-section)
+* [denote-fz-dired-next-full-section](#denote-fz-dired-next-full-section)
+* [denote-fz-dired-previous-full-section](#denote-fz-dired-previous-full-section)
+* [denote-fz-dired-last-section](#denote-fz-dired-last-section)
+* [denote-fz-dired-last-full-section](#denote-fz-dired-last-full-section)
 
 # Documentation
 
@@ -310,6 +315,30 @@ descendants of the upper level of the dired file at point.
 
 Open a dired buffer with all the top level notes (all the notes that
 include only numbers).
+
+### denote-fz-dired-next-section
+
+Open a dired buffer with the next section of the last active section.
+
+### denote-fz-dired-previous-section
+
+Open a dired buffer with the previous section of the last active section.
+
+### denote-fz-dired-next-full-section
+
+Open a dired buffer with the next full section of the last active section.
+
+### denote-fz-dired-previous-full-section
+
+Open a dired buffer with the previous full section of the last active section.
+
+### denote-fz-dired-last-section
+
+Open a dired buffer using last active section.
+
+### denote-fz-dired-last-full-section
+
+Open a dired buffer using last active section.
 
 ## Advanced configuration options
 
