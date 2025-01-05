@@ -51,7 +51,7 @@ SIGNATURE parameter." )
   '(denote-fz-create)
   "List of commands that denote-fz can use to create notes.")
 
-(defvar denote-fz-dired-dirs-table (make-hash-table :test equal) 
+(defvar denote-fz-dired-dirs-table (make-hash-table :test 'equal)
   "Table of directories in which a denote-fz Dired command has been used.
 It can be used to describe active zettelkasten directories.")
 
