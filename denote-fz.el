@@ -259,8 +259,10 @@ VARIATION indicates how to modify the id."
 		      (flat (if last-char-is-num
 				(concat (denote-fz-trim-numbers str) "1")
 			      (concat (denote-fz-trim-chars str) "a"))))))
-	(when (not (string-empty-p result))
-	  result)))))
+	(if (and result (not (string-empty-p result)))
+	    result
+	  (when (stringp str)
+	    str))))))
 
 ;;; Helpers - Find Files
 ;; Functions that find the corresponding  denote files by using the signature
