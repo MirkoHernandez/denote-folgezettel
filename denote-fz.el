@@ -708,6 +708,36 @@ have a signature."
      dir
      denote-fz-dired-dirs-table)))
 
+
+;;;; Hierarchy
+(defun denote-fz-hierarchy ()
+  ""
+  (interactive)
+  (when-let* ((signature (denote-fz-derived-signature 'parent))
+	      (children (denote-fz-search-files signature 'children))
+	      (hierarchy (hierarchy-new)))
+    (mapc  (lambda (n)
+	     (hierarchy-add-tree hierarchy
+				 (file-name-nondirectory
+				  n)
+				 nil nil)) children)
+    (switch-to-buffer
+     (hierarchy-tabulated-display
+      hierarchy
+      (hierarchy-labelfn-indent
+       (hierarchy-labelfn-button
+	(lambda (item _)
+	  (let* ((signature (denote-retrieve-filename-signature item))
+		 (title (denote-retrieve-filename-title item))
+		 (keywords (denote-extract-keywords-from-path item))
+		 (keywords-as-string (mapconcat 'identity keywords ", ")))
+	    (insert (format "%-6s %s %s"
+			    (propertize (or signature "") 'face 'font-lock-warning-face)
+			    (propertize (or title "") 'face 'font-lock-doc-face)
+			    (propertize keywords-as-string 'face 'font-lock-note-face)))))
+	(lambda (item _) (find-file item))))))))
+
+
 ;;;; Dired Commands
 (defun denote-fz-dired-signature-buffer ()
   "Create  a Dired  buffer displaying sorted notes.
@@ -1034,3 +1064,5 @@ Sorted by signature"
 
 (provide 'denote-fz)
 ;;; denote-fz.el ends here
+
+
