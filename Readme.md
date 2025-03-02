@@ -245,7 +245,8 @@ Using it on signature 20a5c would display all descendants of note 20.
 
 Find the upper level note corresponding with the current buffer's
 signature. Example: Using it on a 2a4 signature would find the 2a
-signature.
+signature. By convention the upper level of top level notes is the
+note with signature "0".
 
 ### denote-fz-goto-nested
 

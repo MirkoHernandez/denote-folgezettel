@@ -551,10 +551,13 @@ A prompt asks for the target note on which to base the signature."
   "Visit the upper level note of the current buffer's signature id."
   (interactive)
   (let* ((parent-signature (denote-fz-derived-signature 'parent))
-	 (parent (denote-fz-search-note parent-signature)))
+	 (parent (denote-fz-search-note parent-signature))
+	 (zero (denote-fz-search-note "0")))
     (if parent
 	(find-file parent)
-      (message "Note in upper level does not exists."))))
+      (if zero
+	  (find-file zero) 
+	(message "Note in upper level does not exists.")))))
 
 (defun denote-fz-goto-nested ()
   "Visit a note corresponding with  the current buffer's signature id first nested note."
