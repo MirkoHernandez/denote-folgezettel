@@ -65,6 +65,11 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
   " | sed  's/--/=@/3' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
   "String for setting `ls-option' for `find-dired' command.")
 
+
+(defconst denote-fz-top-level-regex
+  "[0-9]+--.*"
+  "Regexp used to describe top level notes.")
+
 ;;;; Helpers - Sort
 ;; NOTE:  This method  of  sorting  avoids using  regexp  so that  the
 ;; algorithm  can be  ported to  other languages,  possibly without  a
@@ -261,8 +266,12 @@ VARIATION indicates how to modify the id."
 			      (concat (denote-fz-trim-chars str) "a"))))))
 	(if (and result (not (string-empty-p result)))
 	    result
-	  (when (stringp str)
-	    str))))))
+	  (if (string-empty-p result)
+	      ;; empty result, return nil (no variation found).
+	      nil
+	    ;; no result, variation parameter is nil, return the same  str.
+	    (when (stringp str)
+	      str)))))))
 
 ;;; Helpers - Find Files
 ;; Functions that find the corresponding  denote files by using the signature
@@ -298,7 +307,10 @@ Return string."
     (section (denote-fz-find-sorted-files
 	      (denote-fz-create-regex-string id 'section)))
     (siblings
-     (denote-fz-search-files (denote-fz-string-variation id 'parent) 'children))
+     (if (denote-fz-string-variation id 'parent)
+	 (denote-fz-search-files (denote-fz-string-variation id 'parent) 'children))
+     (denote-fz-find-sorted-files
+      denote-fz-top-level-regex))
     (t
      (denote-fz-find-sorted-files id))))
 
@@ -750,7 +762,7 @@ With prefix argument, call `dired-jump' instead."
 (defun denote-fz-dired-top-level-notes ()
   "Create a Dired buffer displaying the top level notes."
   (interactive)
-  (funcall denote-fz-dired-function "[0-9]+--.*"))
+  (funcall denote-fz-dired-function denote-fz-top-level-regex))
 
 (defun denote-fz-dired-section (&optional file)
   "Create a  Dired buffer displaying immediate descendent notes.
