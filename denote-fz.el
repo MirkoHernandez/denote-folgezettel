@@ -5,7 +5,7 @@
 ;; Author: Mirko Hernandez <mirkoh@fastmail.com>
 ;; Maintainer: Mirko Hernandez <mirkoh@fastmail.com>>
 ;; SPDX-License-Identifier: GPL-3.0-or-later
-;; Version: 0.3.0
+;; Version: 0.4.0
 ;; Keywords: denote notes zettelkasten folgezettel
 ;; URL: https://github.com/MirkoHernandez/denote-fz
 ;; Package-Requires: ((emacs "27.1") (denote "2.0.0"))
@@ -722,33 +722,56 @@ have a signature."
 
 
 ;;;; Hierarchy
+(require 'hierarchy)
+(defun denote-fz-display-hierarchy (hierarchy)
+  ""
+  (switch-to-buffer
+   (hierarchy-tabulated-display
+    hierarchy
+    (hierarchy-labelfn-indent
+     (hierarchy-labelfn-button
+      (lambda (item _)
+	(let* ((signature (denote-retrieve-filename-signature item))
+	       (title (denote-retrieve-filename-title item))
+	       (keywords (denote-extract-keywords-from-path item))
+	       (keywords-as-string (mapconcat 'identity keywords ", ")))
+	  (insert (format "%-6s %s %s"
+			  (propertize (or signature "") 'face 'font-lock-warning-face)
+			  (propertize (or title "") 'face 'font-lock-doc-face)
+			  (propertize keywords-as-string 'face 'font-lock-note-face)))))
+      (lambda (item _) (find-file item)))))))
+
 (defun denote-fz-hierarchy ()
   ""
   (interactive)
-  (when-let* ((signature (denote-fz-derived-signature 'parent))
-	      (children (denote-fz-search-files signature 'children))
-	      (hierarchy (hierarchy-new)))
+  (let* ((signature (denote-fz-derived-signature 'parent))
+	 (current-signature (denote-fz-derived-signature))
+	 (children (if signature
+		       (denote-fz-search-files signature 'children)
+		     (denote-fz-search-files current-signature 'siblings)))
+	 (hierarchy (hierarchy-new)))
     (mapc  (lambda (n)
 	     (hierarchy-add-tree hierarchy
 				 (file-name-nondirectory
 				  n)
-				 nil nil)) children)
-    (switch-to-buffer
-     (hierarchy-tabulated-display
-      hierarchy
-      (hierarchy-labelfn-indent
-       (hierarchy-labelfn-button
-	(lambda (item _)
-	  (let* ((signature (denote-retrieve-filename-signature item))
-		 (title (denote-retrieve-filename-title item))
-		 (keywords (denote-extract-keywords-from-path item))
-		 (keywords-as-string (mapconcat 'identity keywords ", ")))
-	    (insert (format "%-6s %s %s"
-			    (propertize (or signature "") 'face 'font-lock-warning-face)
-			    (propertize (or title "") 'face 'font-lock-doc-face)
-			    (propertize keywords-as-string 'face 'font-lock-note-face)))))
-	(lambda (item _) (find-file item))))))))
+				 nil 
+				 ;; (lambda (i)
+				 ;; (denote-fz-search-note 
+				 ;; (denote-retrieve-filename-signature i ) 'parent))
+				 nil)) children)
+    (denote-fz-display-hierarchy hierarchy)))
 
+(define-key hierarchy-tabulated-mode-map (kbd "C-f")
+	    (lambda ()
+	      (interactive)
+	      (let ((button (button-at (point))))
+		(when button
+		  ;; (button-describe button)
+		  (setq uno button)
+		  (message "%s" (button-get button 'action))
+		  ;; (message "%s" (button-get button 'button-data))
+		  ;; (button-activate button use-mouse-action)
+		  t))))
 
 ;;;; Dired Commands
 (defun denote-fz-dired-signature-buffer ()
