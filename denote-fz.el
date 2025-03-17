@@ -959,7 +959,7 @@ uses `find-file' otherwise return the filename."
 Sorted by signature"
   (org-create-dblock (list :name "denote-links"
                            :regexp regexp
-                           :sort-by-component 'denote-fz<
+                           :sort-by-component 'denote-fz-note<
                            :reverse-sort nil
                            :id-only nil))
   (org-update-dblock))
