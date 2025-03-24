@@ -941,7 +941,8 @@ keywords. FILE is a denote path or string."
    (cons
     (let* ((file (or ,file (buffer-file-name)))
 	   (signature (denote-retrieve-filename-signature file))
-	   (title (denote-retrieve-filename-title file))
+	   (file-type (denote-filetype-heuristics file))
+	   (title (denote-retrieve-front-matter-title-value file file-type))
 	   (keywords (denote-extract-keywords-from-path file))
 	   (keywords-as-string (mapconcat 'identity keywords ", ")))
       (format "%-6s %s %s"
