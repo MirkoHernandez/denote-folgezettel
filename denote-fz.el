@@ -912,6 +912,26 @@ It displays the full section before `denote-fz-dired-current-section'."
 	  (denote-fz-dired-signature-buffer))
       (user-error "No marked files; aborting"))))
 
+(defun denote-fz-rename-assign-top-level ()
+  (interactive)
+  "Rename marked dired files and set them as children of a target note."
+  (let (
+	(target  (denote-fz-find-file))
+	(denote--used-ids)
+	(denote-prompts nil)
+        (denote-rename-confirmations nil))
+    (if-let ((marks (dired-get-marked-files)))
+        (progn
+          (unless (seq-every-p #'denote-file-has-identifier-p marks)
+            (setq denote--used-ids (denote--get-all-used-ids)))
+          (dolist (file marks)
+	    (pcase-let ((`(,title ,keywords ,signature ,date)
+			 (denote--rename-get-file-info-from-prompts-or-existing file)))
+	      (denote--rename-file file title keywords (denote-fz-find-valid-signature (denote-fz-derived-signature 'child  target))   date))
+	    )
+	  (denote-fz-dired-signature-buffer))
+      (user-error "No marked files; aborting"))))
+
 ;;; Find File
 (define-inline denote-fz-pretty-format-filename (&optional file)
   "Return  a  pretty  formatted string of a note.
