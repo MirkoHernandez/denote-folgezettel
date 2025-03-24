@@ -136,6 +136,7 @@ Example configuration:
 * [denote-fz-cycle](#denote-fz-cycle)
 * [denote-fz-follow-through](#denote-fz-follow-through)
 * [denote-fz-backward-follow-through](#denote-fz-backward-follow-through)
+* [denote-fz-hierarchy](#denote-fz-hierarchy)
 
 ### Dynamic blocks
 
@@ -276,6 +277,11 @@ Find the next contiguous note.
 ### denote-fz-backward-follow-through
 
 Find the previous contiguous note.
+
+
+### denote-fz-hierarchy
+
+Create a hierarchy buffer using the current buffer's signature.
 
 ## Dynamic blocks
 
