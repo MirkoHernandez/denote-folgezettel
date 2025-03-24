@@ -194,8 +194,8 @@ related notes."
 		   (concat (denote-fz-trim-numbers id) "[^a-z-]-")
 		 (concat id "[^0-9-]-")))
       (children  (if last-char-is-num
-		     (concat id "[^0-9-]+")
-		   (concat id "[^a-z-]+")))
+		     (concat id "[^0-9-]+--")
+		   (concat id "[^a-z-]+--")))
       (full-section  (if last-char-is-num
 			 (concat id "[^0-9-]*[^a-z]*.*")
 		       (concat id "[^a-z-]*[^0-9]*.*")))
