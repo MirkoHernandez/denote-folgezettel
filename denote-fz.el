@@ -1131,7 +1131,7 @@ Sorted by signature"
   :lighter denote-fz-mode-string
   (if denote-fz-mode
       (progn
-	(setq denote-rename-buffer-format  "%s %t")
+	(setq-local denote-rename-buffer-format  "%s %t")
 	(when denote-fz-replace-dired-mode
           (advice-add 'dired-jump :override #'denote-fz-dired-signature-buffer))
 	(denote-rename-buffer-mode t)
@@ -1139,7 +1139,7 @@ Sorted by signature"
 	(run-hooks 'denote-fz-mode-hook))
     (progn
       (advice-remove 'dired-jump #'denote-fz-dired-signature-buffer)
-      (setq denote-rename-buffer-format  "%t"))
+      (setq-local denote-rename-buffer-format  "%t"))
     (denote-rename-buffer-rename-function-or-fallback)))
 
 (defvar denote-fz-dired-mode-map
