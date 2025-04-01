@@ -744,7 +744,8 @@ have a signature."
 			(propertize (or title "") 'face 'font-lock-doc-face)
 			(propertize keywords-as-string 'face 'font-lock-note-face)))))
     (lambda (item _)
-      (find-file item)))))
+      (find-file item)))
+   "    "))
 
 (defun denote-fz-hierarchy-parent (item)
   (let* ((parent (denote-fz-derived-signature 'parent item))
