@@ -84,6 +84,7 @@ Example configuration:
 | `denote-fz-insert-dwim`                | <kbd>i</kbd> |
 | `denote-fz-insert-at-level`            | <kbd>L</kbd> |
 | `denote-fz-insert-at-level-dwim`       | <kbd>l</kbd> |
+| `denote-fz-insert-zero`                | <kbd>z</kbd> |
 | `denote-fz-new`                        | <kbd>o</kbd> |
 | `denote-fz-unnumbered`                 | <kbd>U</kbd> |
 | `denote-fz-select-command`             | <kbd>S</kbd> |
@@ -97,6 +98,7 @@ Example configuration:
 | `denote-fz-cycle`                      | <kbd>c</kbd> |
 | `denote-fz-follow-through`             | <kbd>.</kbd> |
 | `denote-fz-backward-follow-through`    | <kbd>,</kbd> |
+| `denote-fz-hierarchy`                  | <kbd>g</kbd> |
 | `denote-fz-dired-top-level-notes`      | <kbd>m</kbd> |
 | `denote-fz-dired-signature-buffer`     | <kbd>a</kbd> |
 | `denote-fz-dired-section`              | <kbd>s</kbd> |
@@ -118,6 +120,7 @@ Example configuration:
 * [denote-fz-insert-at-level](#denote-fz-insert-at-level)
 * [denote-fz-insert-dwim](#denote-fz-insert-dwim)
 * [denote-fz-insert-at-level-dwim](#denote-fz-insert-at-level-dwim)
+* [denote-fz-insert-zero](#denote-fz-insert-zero)
 * [denote-fz-add-signature](#denote-fz-add-signature)
 * [denote-fz-add-signature-nested](#denote-fz-add-signature-nested)
 * [denote-fz-add-signature-at-level](#denote-fz-add-signature-at-level)

@@ -261,6 +261,9 @@ VARIATION indicates how to modify the id."
 		      (child (if last-char-is-num
 				 (concat str "a")
 			       (concat str "1")))
+		      (zero (if last-char-is-num
+				"" 
+			       (concat str "0")))
 		      (flat (if last-char-is-num
 				(concat (denote-fz-trim-numbers str) "1")
 			      (concat (denote-fz-trim-chars str) "a"))))))
@@ -497,10 +500,15 @@ as the signature."
      (aref unnumbered-array new-position))))
 
 (defun denote-fz-insert-dwim()
-  "Use the current buffer's signature as the target.
-Insert a nested note using the target's signature id."
+"Insert a nested note using the current buffer's signature as the target."
   (interactive)
   (denote-fz-create-note (denote-fz-derived-signature 'child)))
+
+(defun denote-fz-insert-zero()
+  "Insert a nested note with signature '0' using the current-buffer's signature as the target."
+  (interactive)
+  (when-let ((signature (denote-fz-derived-signature 'zero)))
+    (denote-fz-create-note)))
 
 (defun denote-fz-insert-at-level-dwim ()
   "Use the current buffer's signature as the target.
@@ -1088,15 +1096,16 @@ Sorted by signature"
 
 (defvar denote-fz-command-map
   (let ((map (make-sparse-keymap)))
-   ;; Note creation
+    ;; Note creation
     (define-key map (kbd "I") #'denote-fz-insert)
     (define-key map (kbd "i") #'denote-fz-insert-dwim)
     (define-key map (kbd "L") #'denote-fz-insert-at-level)
     (define-key map (kbd "l") #'denote-fz-insert-at-level-dwim)
+    (define-key map (kbd "z") #'denote-fz-insert-zero)
     (define-key map (kbd "o") #'denote-fz-new)
     (define-key map (kbd "U") #'denote-fz-unnumbered)
     (define-key map (kbd "S") #'denote-fz-select-command)
-   ;; Navigation
+    ;; Navigation
     (define-key map (kbd "u") #'denote-fz-unnumbered-cycle)
     (define-key map (kbd "f") #'denote-fz-find-note)
     (define-key map (kbd "F") #'denote-fz-find-note-in-full-section)
@@ -1107,6 +1116,7 @@ Sorted by signature"
     (define-key map (kbd "c") #'denote-fz-cycle)
     (define-key map (kbd ".") #'denote-fz-follow-through)
     (define-key map (kbd ",") #'denote-fz-backward-follow-through)
+    (define-key map (kbd "g") #'denote-fz-hierarchy)
     ;; Dired
     (define-key map (kbd "m") #'denote-fz-dired-top-level-notes)
     (define-key map (kbd "a") #'denote-fz-dired-signature-buffer)
