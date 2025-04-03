@@ -739,12 +739,12 @@ have a signature."
      denote-fz-dired-dirs-table)))
 
 ;;;; Hierarchy Commands
-(defun denote-fz-build-hierarchy (&optional file)
+(defun denote-fz-build-hierarchy (&optional file no-parentfn)
   (let* ((parentfn #'denote-fz-hierarchy-parent)
          (childrenfn #'denote-fz-hierarchy-children)
          (hierarchy (hierarchy-new)))
     (when (denote-retrieve-filename-signature file)
-      (hierarchy-add-tree hierarchy (or file (buffer-file-name)) parentfn childrenfn)
+      (hierarchy-add-tree hierarchy (or file (buffer-file-name)) (unless no-parentfn parentfn) childrenfn)
       (hierarchy-sort hierarchy 'denote-fz-note<)
       hierarchy)))
 
@@ -777,19 +777,24 @@ have a signature."
 	   (denote-fz-create-regex-string signature 'children))))
     children))
 
-(defun denote-fz-hierarchy (&optional file)
-  "Display a  hierarchy of notes  related FILE  if it exists  or the
-current buffer." 
+(defun denote-fz-hierarchy (&optional file no-parentfn)
+  "Display  a hierarchy  buffer of  notes related  hierarchically to
+FILE, if FILE is nil use the current buffer as the target note."
   (interactive)
   (require 'hierarchy)
-  (let ((hierarchy (denote-fz-build-hierarchy (or file (buffer-file-name)))))
+  (let* ((file (or file (buffer-file-name)))
+	 (hierarchy (denote-fz-build-hierarchy file no-parentfn))
+	 (signature (denote-retrieve-filename-signature file)))
     (if hierarchy
 	(progn
 	  (switch-to-buffer
 	   (hierarchy-tabulated-display
 	    hierarchy
-	    (denote-fz-hierarchy-label) (get-buffer-create "*Denote Folgezettel Hierarchy*")))
-	  (denote-fz-hierarchy-mode))
+	    (denote-fz-hierarchy-label)
+	    (get-buffer-create "*Denote Folgezettel Hierarchy*")))
+	  (denote-fz-hierarchy-mode)
+	  (re-search-forward (concat "[[:space:]]*" signature) nil t  )
+	  (recenter-top-bottom))
       (message "Buffer has no valid hierarchy"))))
 
 (defun denote-fz-hierarchy-next-section ()
@@ -814,12 +819,52 @@ current buffer."
 	(denote-fz-hierarchy note)
       (message "First Section"))))
 
+(defun denote-fz-hierarchy-top ()
+ "Display a hierarchy buffer of the top level notes." 
+  (interactive)
+  (let* ((hierarchy (hierarchy-new)))
+    (hierarchy-add-trees hierarchy
+			 (denote-fz-find-sorted-files
+			  denote-fz-top-level-regex)
+			 nil)
+    (if hierarchy
+	(progn
+	  (switch-to-buffer
+	   (hierarchy-tabulated-display
+	    hierarchy
+	    (denote-fz-hierarchy-label)
+	    (get-buffer-create "*Denote Folgezettel Hierarchy*")))
+	  (denote-fz-hierarchy-mode))
+      (message "Buffer has no valid hierarchy"))))
+
+(defun denote-fz-hierarchy-expand ()
+  "Display a hierarchy buffer of the current hierarchy item at point." 
+  (interactive)
+  (let* ((button (button-at (point)))
+	 ;; NOTE: get note from the button's action.
+	 (file (aref (aref 
+		      (button-get button 'action) 2) 1))) 
+    (denote-fz-hierarchy file :no-parentfn)))
+
+(defun denote-fz-hierarchy-upper-level ()
+  "Display a hierarchy buffer of the current hierarchy's root." 
+  (interactive)
+  (when-let* ((button (button-at (point)))
+	      ;; NOTE: get note from the button's action.
+	      (entry (caar tabulated-list-entries))
+	      (signature (denote-fz-derived-signature 'parent entry))
+	      (parent (denote-fz-search-note signature)))
+    (denote-fz-hierarchy parent :no-parentfn)))
+
 (defvar denote-fz-hierarchy-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "K") 'denote-fz-hierarchy-previous-section)
     (define-key map (kbd "J") 'denote-fz-hierarchy-next-section)
     (define-key map (kbd "j") 'forward-button)
     (define-key map (kbd "k") 'backward-button)
+    (define-key map (kbd "o") 'denote-fz-hierarchy-top)
+    (define-key map (kbd "e") 'denote-fz-hierarchy-expand)
+    (define-key map (kbd "u") 'denote-fz-hierarchy-upper-level)
     map)
   "Keymap used for `denote-fz-hierarchy-mode'.")
 
