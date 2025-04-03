@@ -1125,6 +1125,21 @@ Sorted by signature"
 	 (regexp (concat parent-dir ".*==" full-section)))
     (denote-fz-insert-dblock regexp)))
 
+;;;; denote-fz-rename-buffer
+
+(defun denote-fz-rename-buffer (&optional buffer)
+  "Rename the buffer using  `denote-rename-buffer' adding the number
+of nested notes." 
+  (let* ((file (buffer-file-name buffer))
+	 (signature (and file (denote-retrieve-filename-signature file)))
+	 (regex (and signature (denote-fz-create-regex-string signature 'children)))
+	 (notes (and regex (denote-fz-find-sorted-files regex)))
+	 (denote-rename-buffer-format
+	  (if (> (length notes) 0)
+	      (format "[%s] %s" (length notes)  denote-rename-buffer-format)
+	    denote-rename-buffer-format))) 
+    (denote-rename-buffer buffer)))
+
 ;;;; denote-fz-mode
 (defvar denote-fz-replace-dired-mode t)
 
@@ -1198,6 +1213,7 @@ Sorted by signature"
   (if denote-fz-mode
       (progn
 	(setq-local denote-rename-buffer-format  "%s %t")
+	(setq-local denote-rename-buffer-function  'denote-fz-rename-buffer)
 	(when denote-fz-replace-dired-mode
           (advice-add 'dired-jump :override #'denote-fz-dired-signature-buffer))
 	(denote-rename-buffer-mode t)
