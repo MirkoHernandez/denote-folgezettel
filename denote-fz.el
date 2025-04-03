@@ -528,6 +528,16 @@ Insert a note of the target's signature id incremented by one."
   (let ((file  (denote-fz-find-file)))
     (denote-fz-create-note (denote-fz-derived-signature 'sibling file))))
 
+
+;;;; Links
+(defun denote-fz-link ()
+  (interactive)
+  (let* ((file  (denote-fz-find-file))
+	 (file-type (denote-filetype-heuristics file))
+	 (description (when (file-exists-p file)
+                        (denote--link-get-description file))))
+    (denote-link file file-type description current-prefix-arg )))
+
 ;;;; Zettel Editing
 (defun denote-fz-add-signature (&optional file variation)
   "Add a signature to  FILE or the current's buffer unnumbered note.
