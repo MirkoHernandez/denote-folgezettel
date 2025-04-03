@@ -197,6 +197,11 @@ the target.
 Same as `denote-fz-insert-at-level` but uses the current buffer's
 signature as the target.
 
+### denote-fz-insert-zero
+
+Create a nested note with signature '0', it only works over notes with
+a signature that ends in a letter.
+
 ### denote-fz-add-signature
 
 Add a signature to an unnumbered note selecting a target note and
