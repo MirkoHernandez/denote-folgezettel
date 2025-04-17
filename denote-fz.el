@@ -556,13 +556,11 @@ signature is created from the target note."
 		       (completing-read "New Signature:"
 					(list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
 					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target)))))))
-    (if (equal "unnumbered" current-signature)
-	(progn
-	  (when  (eq major-mode 'dired-mode )
-	    (advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
-	  (denote-rename-file file title keywords signature date)
-	  (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer))
-      (message "Not an unnumbered note."))))
+    (progn
+      (when  (eq major-mode 'dired-mode )
+	(advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
+      (denote-rename-file file title keywords signature date)
+      (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer))))
 
 (defun denote-fz-add-signature-nested (&optional file)
   "Add a nested signature to FILE or the current buffer's unnumbered note.
@@ -849,12 +847,13 @@ FILE, if FILE is nil use the current buffer as the target note."
 (defun denote-fz-hierarchy-upper-level ()
   "Display a hierarchy buffer of the current hierarchy's root." 
   (interactive)
-  (when-let* ((button (button-at (point)))
-	      ;; NOTE: get note from the button's action.
-	      (entry (caar tabulated-list-entries))
-	      (signature (denote-fz-derived-signature 'parent entry))
-	      (parent (denote-fz-search-note signature)))
-    (denote-fz-hierarchy parent :no-parentfn)))
+  (if-let* ((button (button-at (point)))
+	    ;; NOTE: get note from the root entry.
+	    (entry (caar tabulated-list-entries))
+	    (signature (denote-fz-derived-signature 'parent entry))
+	    (parent (denote-fz-search-note signature)))
+      (denote-fz-hierarchy parent :no-parentfn)
+    (denote-fz-hierarchy-top)))
 
 (defvar denote-fz-hierarchy-mode-map
   (let ((map (make-sparse-keymap)))
