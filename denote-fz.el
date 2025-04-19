@@ -555,12 +555,16 @@ signature is created from the target note."
 			 (denote-fz-find-valid-signature (denote-fz-derived-signature variation target))
 		       (completing-read "New Signature:"
 					(list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
-					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target)))))))
-    (progn
-      (when  (eq major-mode 'dired-mode )
-	(advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
-      (denote-rename-file file title keywords signature date)
-      (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer))))
+					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target))
+					      )
+					nil nil nil))))
+    (if (or (equal "unnumbered" current-signature) (not current-signature))
+	(progn
+	  (when  (eq major-mode 'dired-mode )
+	    (advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
+	  (denote-rename-file file title keywords signature date)
+	  (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer))
+      (message "Not an unnumbered note."))))
 
 (defun denote-fz-add-signature-nested (&optional file)
   "Add a nested signature to FILE or the current buffer's unnumbered note.
