@@ -1096,7 +1096,7 @@ Sorted by signature"
 	 (section (if (and signature (not (string-empty-p signature)))
 		      (denote-fz-create-regex-string signature 'section)
 		    "[0-9]+--"))
-	 (regexp (concat parent-dir ".*==" section)))
+	 (regexp (concat parent-dir "/.*==" section)))
     (denote-fz-insert-dblock regexp)))
 
 (defun denote-fz-insert-full-section-dblock ()
