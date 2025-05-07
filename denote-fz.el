@@ -31,8 +31,9 @@
 
 ;;; Code:
 (require 'denote)
-(require 'denote-rename-buffer)
 
+;; NOTE:denote-rename-buffer is included in denote 4.0.0
+(require 'denote-rename-buffer nil :noerror)
 
 (define-obsolete-function-alias
   'denote-fz-first-note
