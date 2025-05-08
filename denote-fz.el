@@ -421,7 +421,8 @@ Signature 20a1 might find 20a1y as the last nested signature."
   "This is the default `denote-fz-create-function'.
 It creates a note using  SIGNATURE, prompts are used depending on
 the value of `denote-prompts'"
-  (let ((denote-user-enforced-denote-directory default-directory))
+  (let ((denote-user-enforced-denote-directory default-directory)
+	(denote-directory default-directory))
     (denote (and (member 'title denote-prompts)
 		 (denote-title-prompt nil (format "[%s] New file Title" signature)))
 	    (and (member 'keywords denote-prompts)
