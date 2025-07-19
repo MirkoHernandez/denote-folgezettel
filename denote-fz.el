@@ -56,12 +56,17 @@ SIGNATURE parameter." )
   "Table of directories in which a denote-fz Dired command has been used.
 It can be used to describe active zettelkasten directories.")
 
+(defvar denote-fz-nested-notes nil 
+  "Non-nil means that the navigation and searching commands will start looking from `denote-directory'.")
+
 ;;;; Constants
+;; TODO: make obsolete
 (defconst denote-fz-sort-command
   " | sed  's/--/=@/' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
   "String used in find when calling `shell-command-to-string' command.
 This enables the correct sorting of the Luhmann id according to the zettelkasten convention.")
 
+;; TODO: make obsolete
 (defconst denote-fz-sort-ls-option
   " | sed  's/--/=@/3' | sort -t '=' -Vk 3,3 | sed 's/=@/--/' "
   "String for setting `ls-option' for `find-dired' command.")
@@ -292,10 +297,22 @@ Return string."
   "Find a list  of notes matching REGEX.
 The list  is sorted by folgezettel unless NO-SORT is non-nil."
   (require 'find-lisp)
-  (if no-sort
-      (find-lisp-find-files  default-directory (concat    ".*==" (or regex "")  ".*"))
-    (sort (find-lisp-find-files  default-directory (concat  ".*==" (or regex "")  ".*"))
-	  'denote-fz-note<)))
+  (let* ((dir (if denote-fz-nested-notes denote-directory default-directory))
+	 (files (if denote-fz-nested-notes
+		    (denote-directory-files (concat    ".*==" (or regex "")  ".*") )
+		  (directory-files dir nil (concat    ".*==" (or regex "")  ".*")))))
+    ;; (mapcar 'expand-file-name (directory-files-recursively  dir (concat     ".*==" (or regex "")  ".*")))
+    (if no-sort
+	files
+      (sort files 'denote-fz-note<))))
+
+(defun denote-fz-find-sorted-files-dired (regex &optional no-sort)
+  (require 'find-lisp)
+  (let* ((dir default-directory)
+	 (files (directory-files dir nil)))
+    (if no-sort
+	files
+      (sort files 'denote-fz-note<))))
 
 (defun denote-fz-search-files (id &optional variation)
   "Execute the find command to find files matching the Luhmann ID.
@@ -712,18 +729,18 @@ have a signature."
 (defun denote-fz-find-dired (&optional regex)
   (let ((find-ls-option (denote-fz-set-find-ls-option regex))
 	(current-find-dired-option find-dired-refine-function))
-    
+
     ;; NOTE: this needs to be set globally, find-dired works asynchronously.
     (setq find-dired-refine-function nil)
-    
+
     (find-dired default-directory "")
     (denote-fz-dired-mode)
     (setq find-dired-refine-function current-find-dired-option)))
 
 (defun denote-fz-dired-sorted (&optional regex)
  "Creates  a  sorted Dired  buffer  with  notes corresponding  with REGEX."
-  (let ((files (mapcar 'file-name-nondirectory
-		       (denote-fz-find-sorted-files  regex))))
+ (let* ((denote-fz-nested-notes nil)
+	(files (denote-fz-find-sorted-files-dired  regex)))
     (dired (cons default-directory files))
     (denote-fz-dired-mode t)))
 
@@ -1131,10 +1148,8 @@ Sorted by signature"
     (denote-fz-insert-dblock regexp)))
 
 ;;;; denote-fz-rename-buffer
-
 (defun denote-fz-rename-buffer (&optional buffer)
-  "Rename the buffer using  `denote-rename-buffer' adding the number
-of nested notes." 
+  "Rename the buffer using  `denote-rename-buffer' adding the number of nested notes."
   (let* ((file (buffer-file-name buffer))
 	 (signature (and file (denote-retrieve-filename-signature file)))
 	 (regex (and signature (denote-fz-create-regex-string signature 'children)))
