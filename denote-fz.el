@@ -153,8 +153,10 @@ This enables the correct sorting of the Luhmann id according to the zettelkasten
 
 (defun denote-fz-note< (a b)
   "Return non-nil if note A has a lower folgezettel value in the signature than note B."
-  (denote-fz-folgezettel< (denote-retrieve-filename-signature a)
-			  (denote-retrieve-filename-signature b)))
+  (if (file-directory-p a)
+      t
+    (denote-fz-folgezettel< (denote-retrieve-filename-signature a)
+			    (denote-retrieve-filename-signature b))))
 
 ;;;; Helpers - Strings
 (defun denote-fz-trim-chars (str)
