@@ -270,7 +270,7 @@ VARIATION indicates how to modify the id."
 				 (concat str "a")
 			       (concat str "1")))
 		      (zero (if last-char-is-num
-				"" 
+				""
 			       (concat str "0")))
 		      (flat (if last-char-is-num
 				(concat (denote-fz-trim-numbers str) "1")
@@ -373,7 +373,7 @@ Signature 20a1 might find 20a14 as the last signature"
 (defun denote-fz-find-last-signature-nested (file-or-signature)
   "Find the last signature at the level of FILE-OR-SIGNATURE.
 Signature 20a1 might find 20a1y as the last nested signature."
-  (when file-or-signature 
+  (when file-or-signature
     (let* ((signature (if (denote-file-is-note-p file-or-signature )
 			  (denote-retrieve-filename-signature file-or-signature)
 			file-or-signature))
@@ -556,7 +556,7 @@ Insert a note of the target's signature id incremented by one."
   (let* ((file  (denote-fz-find-file))
 	 (file-type (denote-filetype-heuristics file))
 	 (description (when (file-exists-p file)
-                        (denote--link-get-description file))))
+			(denote--link-get-description file))))
     (denote-link file file-type description current-prefix-arg )))
 
 ;;;; Zettel Editing
@@ -752,7 +752,7 @@ have a signature."
   (let* ((file (or (dired-get-filename nil t) (buffer-file-name)))
 	 (dir (file-name-parent-directory file)))
   (puthash
-   dir 
+   dir
    signature
    denote-fz-dired-dirs-table)))
 
@@ -766,8 +766,8 @@ have a signature."
 ;;;; Hierarchy Commands
 (defun denote-fz-build-hierarchy (&optional file no-parentfn)
   (let* ((parentfn #'denote-fz-hierarchy-parent)
-         (childrenfn #'denote-fz-hierarchy-children)
-         (hierarchy (hierarchy-new)))
+	 (childrenfn #'denote-fz-hierarchy-children)
+	 (hierarchy (hierarchy-new)))
     (when (denote-retrieve-filename-signature file)
       (hierarchy-add-tree hierarchy (or file (buffer-file-name)) (unless no-parentfn parentfn) childrenfn)
       (hierarchy-sort hierarchy 'denote-fz-note<)
@@ -933,7 +933,7 @@ The Dired file at point or the current buffer is used as starting signature."
   (let* ((file (or file (dired-get-filename nil t) (buffer-file-name (current-buffer))))
 	 (signature (denote-retrieve-filename-signature file))
 	 (regex (denote-fz-create-regex-string signature 'full-section)))
-   (denote-fz-set-section signature) 
+   (denote-fz-set-section signature)
     (funcall denote-fz-dired-function regex)))
 
 (defun denote-fz-dired-section-up (&optional file)
@@ -959,7 +959,7 @@ the Dired file at point or the current buffer."
 	 (signature (denote-retrieve-filename-signature file))
 	 (parent (denote-fz-string-variation signature 'parent))
 	 (regex (if (not parent)
-		    (denote-fz-dired-signature-buffer) 
+		    (denote-fz-dired-signature-buffer)
 		  (denote-fz-create-regex-string parent 'full-section))))
     (denote-fz-set-section parent)
     (funcall denote-fz-dired-function regex)))
@@ -1005,7 +1005,7 @@ It displays the full section before `denote-fz-dired-current-section'."
   (interactive)
   (let* ((signature (denote-fz-derived-signature 'decrement
 						 (or (denote-fz-derived-signature 'parent
-										  (denote-fz-get-section) 
+										  (denote-fz-get-section)
 										  )
 						     (denote-fz-get-section))))
 	 (note (denote-fz-search-note signature)))
@@ -1014,12 +1014,12 @@ It displays the full section before `denote-fz-dired-current-section'."
       (message "Last Section"))))
 
 (defun denote-fz-dired-last-section ()
- "Create a Dired Buffer using the section of `denote-fz-dired-current-section'." 
+ "Create a Dired Buffer using the section of `denote-fz-dired-current-section'."
   (interactive)
   (denote-fz-dired-section (denote-fz-search-note (denote-fz-get-section))))
 
 (defun denote-fz-dired-last-full-section ()
-  "Create a Dired Buffer using the full section of `denote-fz-dired-current-section'." 
+  "Create a Dired Buffer using the full section of `denote-fz-dired-current-section'."
   (interactive)
   (denote-fz-dired-full-section (denote-fz-search-note (denote-fz-get-section))))
 
@@ -1029,15 +1029,15 @@ It displays the full section before `denote-fz-dired-current-section'."
   (interactive)
   (let ((denote--used-ids)
 	(denote-prompts nil)
-        (denote-rename-confirmations nil))
+	(denote-rename-confirmations nil))
     (if-let ((marks (dired-get-marked-files)))
-        (progn
-          (unless (seq-every-p #'denote-file-has-identifier-p marks)
-            (setq denote--used-ids (denote--get-all-used-ids)))
-          (dolist (file marks)
-            (pcase-let ((`(,title ,keywords ,signature ,date)
-                         (denote--rename-get-file-info-from-prompts-or-existing file)))
-              (denote--rename-file file title keywords "unnumbered" date)))
+	(progn
+	  (unless (seq-every-p #'denote-file-has-identifier-p marks)
+	    (setq denote--used-ids (denote--get-all-used-ids)))
+	  (dolist (file marks)
+	    (pcase-let ((`(,title ,keywords ,signature ,date)
+			 (denote--rename-get-file-info-from-prompts-or-existing file)))
+	      (denote--rename-file file title keywords "unnumbered" date)))
 	  (denote-fz-dired-signature-buffer))
       (user-error "No marked files; aborting"))))
 
@@ -1048,12 +1048,12 @@ It displays the full section before `denote-fz-dired-current-section'."
 	(target  (denote-fz-find-file))
 	(denote--used-ids)
 	(denote-prompts nil)
-        (denote-rename-confirmations nil))
+	(denote-rename-confirmations nil))
     (if-let ((marks (dired-get-marked-files)))
-        (progn
-          (unless (seq-every-p #'denote-file-has-identifier-p marks)
-            (setq denote--used-ids (denote--get-all-used-ids)))
-          (dolist (file marks)
+	(progn
+	  (unless (seq-every-p #'denote-file-has-identifier-p marks)
+	    (setq denote--used-ids (denote--get-all-used-ids)))
+	  (dolist (file marks)
 	    (pcase-let ((`(,title ,keywords ,signature ,date)
 			 (denote--rename-get-file-info-from-prompts-or-existing file)))
 	      (denote--rename-file file title keywords (denote-fz-find-valid-signature (denote-fz-derived-signature 'child  target))   date))
@@ -1108,10 +1108,10 @@ uses `find-file' otherwise return the filename."
   "Create a db block using REGEXP.
 Sorted by signature"
   (org-create-dblock (list :name "denote-links"
-                           :regexp regexp
-                           :sort-by-component 'denote-fz-note<
-                           :reverse-sort nil
-                           :id-only nil))
+			   :regexp regexp
+			   :sort-by-component 'denote-fz-note<
+			   :reverse-sort nil
+			   :id-only nil))
   (org-update-dblock))
 
 (defun denote-fz-insert-section-dblock ()
@@ -1161,7 +1161,7 @@ Sorted by signature"
 	 (denote-rename-buffer-format
 	  (if (> (length notes) 0)
 	      (format "[%s] %s" (length notes)  denote-rename-buffer-format)
-	    denote-rename-buffer-format))) 
+	    denote-rename-buffer-format)))
     (denote-rename-buffer buffer)))
 
 ;;;; denote-fz-mode
