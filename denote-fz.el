@@ -581,10 +581,7 @@ signature is created from the target note."
 					nil nil nil t))))
     (if (or (equal "unnumbered" current-signature) (not current-signature))
 	(progn
-	  (when  (eq major-mode 'dired-mode )
-	    (advice-add 'denote-update-dired-buffers :override 'denote-fz-dired-signature-buffer))
 	  (denote-rename-file file title keywords signature date)
-	  (advice-remove 'denote-update-dired-buffers  'denote-fz-dired-signature-buffer)
 	  (when (not (eq major-mode 'dired-mode ))
 	    (save-buffer)))
       (message "Not an unnumbered note."))))
@@ -602,6 +599,24 @@ A prompt asks for the target note on which to base the signature."
   (interactive)
   (let ((file (or file (dired-get-filename nil t))))
     (denote-fz-add-signature file 'sibling)))
+
+(defun denote-fz-add-signature-to-link-nested (&optional file)
+  (interactive)
+  (if-let ((file (concat
+		  (denote-directory)
+		  (denote-select-linked-file-prompt
+		   (denote-link-return-links)))))
+      (denote-fz-add-signature file 'child)
+         (user-error "No links found")))
+
+(defun denote-fz-add-signature-to-link-at-level (&optional file)
+  (interactive)
+  (if-let ((file (concat
+		  (denote-directory)
+		  (denote-select-linked-file-prompt
+		   (denote-link-return-links)))))
+      (denote-fz-add-signature file 'sibling)
+    (user-error "No links found")))
 
 ;;;; Zettel navigation
 (defun denote-fz-goto-upper-level ()

@@ -217,6 +217,18 @@ creating a nested note using its signature.
 Add a signature to an unnumbered note selecting a target note and
 creating a note at level using its signature.
 
+### denote-fz-add-signature-to-link-nested
+
+Add a nested signature to a link existing in the current note (the current
+buffer or Dired file), it prompts for a target note from which the
+new signature is based on.
+
+### denote-fz-add-signature-to-link-at-level
+
+Add a signature at level to a link existing in the current note (the current
+buffer or Dired file), it prompts for a target note from which the
+new signature is based on.
+
 > [!NOTE]
 > Notes should not generally change signature.The following command is
 > used to correct the premature numbering of notes (This can be a common
