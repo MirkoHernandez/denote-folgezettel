@@ -1138,7 +1138,7 @@ Sorted by signature"
 	 (section (if (and signature (not (string-empty-p signature)))
 		      (denote-fz-create-regex-string signature 'section)
 		    "[0-9]+--"))
-	 (regexp (concat parent-dir "/.*==" section)))
+	 (regexp (concat "/" parent-dir "/.*==" section)))
     (denote-fz-insert-dblock regexp)))
 
 (defun denote-fz-insert-full-section-dblock ()
@@ -1150,7 +1150,7 @@ Sorted by signature"
 	 (full-section (if (not (equal signature ""))
 			   (denote-fz-create-regex-string signature 'full-section)
 			 "[0-9]+--"))
-	 (regexp (concat parent-dir ".*==" full-section)))
+	 (regexp (concat "/" parent-dir "/.*==" full-section)))
     (denote-fz-insert-dblock regexp)))
 
 (defun denote-fz-insert-current-section-dblock ()
@@ -1163,7 +1163,7 @@ Sorted by signature"
 			   (denote-fz-create-regex-string (denote-fz-string-variation signature 'parent)
 							  'section)
 			 "[0-9]+--"))
-	 (regexp (concat parent-dir ".*==" full-section)))
+	 (regexp (concat "/" parent-dir "/.*==" full-section)))
     (denote-fz-insert-dblock regexp)))
 
 ;;;; denote-fz-rename-buffer
