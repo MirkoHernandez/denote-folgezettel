@@ -10,7 +10,7 @@ primary motivation of denote-fz.
 
 # Requirements
 
-Denote 2.0.0 or above is required.
+Denote 3.0.0 or above is required.
 
 # Installation
 

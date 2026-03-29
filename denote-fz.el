@@ -8,7 +8,7 @@
 ;; Version: 0.5.0
 ;; Keywords: denote notes zettelkasten folgezettel
 ;; URL: https://github.com/MirkoHernandez/denote-fz
-;; Package-Requires: ((emacs "27.1") (denote "2.0.0"))
+;; Package-Requires: ((emacs "27.1") (denote "3.0.0"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -570,21 +570,22 @@ signature is created from the target note."
 	 (title (denote-retrieve-title-value file file-type))
 	 (keywords (denote-retrieve-keywords-value file file-type))
 	 (current-signature  (denote-retrieve-filename-signature file))
+	 (identifier (denote-retrieve-filename-identifier file))
 	 (date (denote-valid-date-p (denote-retrieve-filename-identifier file)))
 	 (target (denote-fz-find-file nil nil "Select a note to derive a new signature:"))
 	 (signature  (if variation
 			 (denote-fz-find-valid-signature (denote-fz-derived-signature variation target))
-		       (completing-read "New Signature:"
-					(list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
-					      (denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target))
-					      )
-					nil nil nil t))))
-    (if (or (equal "unnumbered" current-signature) (not current-signature))
-	(progn
-	  (denote-rename-file file title keywords signature date)
-	  (when (not (eq major-mode 'dired-mode ))
-	    (save-buffer)))
-      (message "Not an unnumbered note."))))
+			 (completing-read "New Signature:"
+					  (list (denote-fz-find-valid-signature (denote-fz-derived-signature 'child target))
+						(denote-fz-find-valid-signature (denote-fz-derived-signature 'sibling target))
+						)
+					  nil nil nil t))))
+	(if (or (equal "unnumbered" current-signature) (not current-signature))
+	    (progn
+	      (denote-rename-file file title keywords signature date identifier)
+	      (when (not (eq major-mode 'dired-mode ))
+		(save-buffer)))
+	    (message "Not an unnumbered note."))))
 
 (defun denote-fz-add-signature-nested (&optional file)
   "Add a nested signature to FILE or the current buffer's unnumbered note.
@@ -922,7 +923,7 @@ FILE, if FILE is nil use the current buffer as the target note."
   "Create  a Dired  buffer displaying sorted notes.
 With prefix argument, call `dired-jump' instead."
   (interactive)
-  (if (or current-prefix-arg (not denote-fz-mode))
+  (if (or current-prefix-arg (not dired-mode))
       (funcall (advice--cd*r (symbol-function #'dired-jump)))
     (funcall denote-fz-dired-function)))
 
@@ -1050,9 +1051,9 @@ It displays the full section before `denote-fz-dired-current-section'."
 	  (unless (seq-every-p #'denote-file-has-identifier-p marks)
 	    (setq denote--used-ids (denote--get-all-used-ids)))
 	  (dolist (file marks)
-	    (pcase-let ((`(,title ,keywords ,signature ,date)
+	    (pcase-let ((`(,title ,keywords ,signature ,date, identifier)
 			 (denote--rename-get-file-info-from-prompts-or-existing file)))
-	      (denote--rename-file file title keywords "unnumbered" date)))
+	      (denote--rename-file file title keywords "unnumbered" date identifier)))
 	  (denote-fz-dired-signature-buffer))
       (user-error "No marked files; aborting"))))
 
